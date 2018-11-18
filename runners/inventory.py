@@ -196,6 +196,7 @@ def audit(ts, properties, propertiesChanged):
 				properties["osrelease"],
 				properties["saltversion"]
 			)
+		serverId = int(properties["server_id"])
 	try:
 		__doQuery(cursor, query)
 		db.commit()
@@ -246,20 +247,21 @@ def present(ts, minions):
 	# process each minion
 	for m in minions:
 		try:
-			serverId = int(__getRecordId(cursor, "minion", "server_id", "id", m))
+			serverId = __getRecordId(cursor, "minion", "server_id", "id", m)
 			if serverId:
+				serverId = int(serverId)
 				__doQuery(cursor, "UPDATE `minion` SET `last_seen` = \"%s\" WHERE `server_id` = %d" % (ts, serverId))
 				db.commit()
 			else:
-				log.info("inventory.present: minion %s (%d) has not been audited, invoking audit" % (m, serverId))
+				log.info("inventory.present: minion %s has not been audited, invoking audit" % m)
 				# New minion, call the inventory.audit function on the minion
 				# to populate the database.
 				# Note: Newer versions of Salt have the 'salt.execute' function.
 				# For those that don't, call via a subprocess instead.
 				if 'salt.execute' in __salt__:
-					__salt__['salt.execute'](m, 'inventory.audit')
+					__salt__['salt.execute'](m, 'inventory.audit', 'force=True')
 				else:
-					rtn = subprocess.call("salt '%s' inventory.audit" % m, shell=True)
+					rtn = subprocess.call("salt '%s' inventory.audit force=True" % m, shell=True)
 					if rtn == 0:
 						return True
 					log.error("inventory.present: failed to invoke audit of %s" % m)
