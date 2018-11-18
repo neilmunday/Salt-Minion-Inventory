@@ -1,6 +1,6 @@
 # Salt-Minion-Inventory
 
-Provides a web based interface to your SaltStack minions to view their state and packae information.
+Provides a web based interface to your SaltStack minions to view their state and package information.
 
 [Bootstrap](https://getbootstrap.com), [Datatables.net](https://datatables.net) and [jQuery](https://jquery.com) are used to create the user interface.
 
@@ -9,6 +9,14 @@ Data about the minions are stored in a MySQL database.
 SaltStack events, reactors and a runner are used to keep the data up to date.
 
 Minions only report their state, packages etc. if they have changed. Minions will cache their data's md5sum value to `/var/tmp/salt_inventory_audit.cache`
+
+## Screen Shots
+
+Example inventory:
+![Inventory](inventory.png)
+
+Example packages list for a minion:
+![Packages](packages.png)
 
 ## Requirements
 
