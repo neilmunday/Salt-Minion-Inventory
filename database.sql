@@ -18,7 +18,7 @@ CREATE TABLE `minion` (
   `host` varchar(255) DEFAULT NULL,
   `kernel` varchar(255) DEFAULT NULL,
   `kernelrelease` varchar(255) DEFAULT NULL,
-  `mem_total` smallint(5) unsigned NOT NULL DEFAULT '0',
+  `mem_total` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `num_cpus` smallint(5) unsigned NOT NULL DEFAULT '0',
   `num_gpus` int(10) unsigned NOT NULL DEFAULT '0',
   `os` varchar(255) DEFAULT NULL,
