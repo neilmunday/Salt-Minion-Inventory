@@ -87,7 +87,7 @@
 		</div>
 
 		<script src="js/jquery-3.3.1.min.js"></script>
-		<script src="bootstrap/js/bootstrap.bundle.min.js"></script>
+		<script src="bootstrap/js/bootstrap.min.js"></script>
 		<script src="datatables/datatables.min.js"></script>
 		<script type="text/javascript">
 			$(document).ready(function() {
