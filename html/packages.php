@@ -50,7 +50,7 @@
 	<body>
 
 		<?php
-			$result = doQuery($mysqli, "SELECT `package_name`, `package_version` FROM `package`, `minion_package` WHERE `package`.`package_id` = `minion_package`.`package_id` ORDER BY `package_name`;");
+			$result = doQuery($mysqli, "SELECT `package_name`, `package_version` FROM `package`, `minion_package` WHERE `server_id` = $serverId AND `package`.`package_id` = `minion_package`.`package_id` ORDER BY `package_name`;");
 		?>
 
 		<div class="container-fluid">
