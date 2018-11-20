@@ -62,8 +62,14 @@
 	<script src="datatables/datatables.min.js"></script>
 	<script type="text/javascript">
 
+		var minionDataTable = null;
+
+		function reloadJson() {
+			minionDataTable.ajax.reload();
+		}
+
 		$(document).ready(function() {
-			$('#minionTable').DataTable({
+			minionDataTable = $('#minionTable').DataTable({
 				"ajax": "minions-json.php",
 				"columns": [
 					{ data: "server_id", visible: false },
@@ -85,6 +91,8 @@
 					{ data: "last_audit", type: "date" }
 				],
 				"info": false,
+				"ordering": true,
+				"order": [[1, 'asc']],
 				"paging": false,
 				"responsive": true,
 				"createdRow": function(row, data, dataIndex) {
@@ -96,6 +104,8 @@
 					}
 				}
 			});
+
+			setInterval(reloadJson, 60000); // reload feed every 60s
 		});
 	</script>
 </body>
