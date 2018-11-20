@@ -91,6 +91,25 @@ To force a minion to run an audit, run the following command:
 salt minion01 inventory.audit force=True
 ```
 
+## Debugging
+
+If you experience problems then check the following files:
+
+* /var/log/salt/master
+* /var/log/salt/minion
+
+Check the events that are being triggered and the results by watching for events on the Salt master:
+
+```bash
+salt-run state.event pretty=True
+```
+
+Run the `inventory.audit` function in debug mode:
+
+```bash
+salt -l debug '*' inventory.audit force=True
+```
+
 ## Licensing
 
 * Salt-Minion-Inventory is licensed under the [GPLv3 license](https://www.gnu.org/licenses/gpl-3.0.en.html)
