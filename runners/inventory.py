@@ -219,12 +219,20 @@ def audit(ts, properties, propertiesChanged):
 			pkgId = cursor.lastrowid
 			db.commit()
 		for v in versions:
+			version = None
+			if isinstance(v, dict) and 'version' in v:
+				version = v['version']
+			elif isinstance(v, basestring):
+				version = v
+			else:
+				log.error("inventory.audit: could not process %s version %s" % (package, v))
+				continue
 			__doQuery(cursor,
 				"""
 					INSERT INTO `minion_package` (`server_id`, `package_id`, `package_version`, `present`)
 					VALUES (%d, %d, \"%s\", 1)
 					ON DUPLICATE KEY UPDATE `present` = 1;
-				""" % (serverId, pkgId, v))
+				""" % (serverId, pkgId, version))
 			db.commit()
 	# purge any deleted packages
 	__doQuery(cursor, "DELETE FROM `minion_package` WHERE `server_id` = %d AND `present` = 0;" % serverId)
@@ -259,7 +267,7 @@ def present(ts, minions):
 				# Note: Newer versions of Salt have the 'salt.execute' function.
 				# For those that don't, call via a subprocess instead.
 				if 'salt.execute' in __salt__:
-					__salt__['salt.execute'](m, 'inventory.audit', 'force=True')
+					__salt__['salt.execute'](m, 'inventory.audit', args=('force=True'))
 				else:
 					rtn = subprocess.call("salt '%s' inventory.audit force=True" % m, shell=True)
 					if rtn == 0:
