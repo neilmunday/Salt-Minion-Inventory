@@ -23,7 +23,8 @@ CREATE TABLE `minion` (
   `num_gpus` int(10) unsigned NOT NULL DEFAULT '0',
   `os` varchar(255) DEFAULT NULL,
   `osrelease` varchar(255) DEFAULT NULL,
-  `saltversion` varchar(255) DEFAULT NULL
+  `saltversion` varchar(255) DEFAULT NULL,
+  `package_total` smallint(5) unsigned NOT NULL DEFAULT '0'
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 --
 -- Table structure for table `minion_package`
@@ -52,7 +53,8 @@ ALTER TABLE `minion`
 -- Indexes for table `minion_package`
 --
 ALTER TABLE `minion_package`
-  ADD PRIMARY KEY (`server_id`,`package_id`,`package_version`) USING BTREE;
+  ADD PRIMARY KEY (`server_id`,`package_id`,`package_version`) USING BTREE,
+  ADD KEY `serverId` (`server_id`);
 --
 -- Indexes for table `package`
 --
