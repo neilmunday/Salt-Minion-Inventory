@@ -61,7 +61,7 @@ def audit(force=False):
 	properties['selinux_enabled'] = grains['selinux']['enabled']
 	properties['selinux_enabled'] = grains['selinux']['enforced']
 
-	properties['pkgs'] = __salt__['pkg.list_pkgs'](versions_as_list=True, attr=["version"])
+	properties['pkgs'] = __salt__['pkg.list_pkgs'](versions_as_list=True)
 
 	checksum = hashlib.md5(str(properties)).hexdigest()
 
