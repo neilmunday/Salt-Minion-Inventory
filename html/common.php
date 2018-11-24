@@ -42,4 +42,29 @@ function doQuery($mysqli, $query) {
 	die("Query: $query failed with error: " . $mysqli->error);
 }
 
+function pageEnd() {
+	echo("
+		</body>
+	</html>
+	");
+}
+
+function pageStart() {
+	echo("
+	<html lang=\"en\">
+		<head>
+			<meta charset=\"utf-8\">
+	    	<meta name=\"viewport\" content=\"width=device-width, initial-scale=1, shrink-to-fit=no\">
+			<title>Salt Minion Inventory</title>
+			<link rel=\"stylesheet\" href=\"bootstrap/css/bootstrap.min.css\">
+			<link rel=\"stylesheet\" href=\"css/style.css\">
+			<link rel=\"stylesheet\" type=\"text/css\" href=\"datatables/datatables.min.css\"/>
+			<script src=\"js/jquery-3.3.1.min.js\"></script>
+			<script src=\"bootstrap/js/bootstrap.min.js\"></script>
+			<script src=\"datatables/datatables.min.js\"></script>
+		</head>
+		<body>
+	");
+}
+
 ?>

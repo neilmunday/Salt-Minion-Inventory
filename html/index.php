@@ -20,16 +20,11 @@
   You should have received a copy of the GNU General Public License
   along with Salt Minion Inventory.  If not, see <http://www.gnu.org/licenses/>.
 !-->
-<html lang="en">
-	<head>
-		<meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-		<title>Salt Minion Inventory</title>
-		<link rel="stylesheet" href="bootstrap/css/bootstrap.min.css">
-		<link rel="stylesheet" href="css/style.css">
-		<link rel="stylesheet" type="text/css" href="datatables/datatables.min.css"/>
-	</head>
-	<body>
+
+<?php
+	require_once("common.php");
+	pageStart();
+?>
 
 	<h1>Salt Minion Inventory</h1>
 
@@ -57,9 +52,6 @@
 		</div>
 	</div>
 
-	<script src="js/jquery-3.3.1.min.js"></script>
-	<script src="bootstrap/js/bootstrap.min.js"></script>
-	<script src="datatables/datatables.min.js"></script>
 	<script type="text/javascript">
 
 		var minionDataTable = null;
@@ -78,7 +70,7 @@
 					{ data: "osrelease" },
 					{ data: "kernelrelease" },
 					{
-						data: "packages",
+						data: "package_total",
 						render: function(data, type, row, meta) {
 							if (data == 0) {
 								return 0;
@@ -90,7 +82,7 @@
 					{ data: "last_seen", type: "date" },
 					{ data: "last_audit", type: "date" }
 				],
-				"info": false,
+				"info": true,
 				"ordering": true,
 				"order": [[1, 'asc']],
 				"paging": false,
@@ -108,5 +100,4 @@
 			setInterval(reloadJson, 60000); // reload feed every 60s
 		});
 	</script>
-</body>
-</html>
+<?php pageEnd(); ?>

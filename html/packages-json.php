@@ -1,4 +1,5 @@
 <?php
+
 /*
   This file is part of the Salt Minion Inventory.
 
@@ -27,8 +28,14 @@ $data = array();
 $data['data'] = array();
 
 $mysqli = dbConnect();
-// get records for all the minions
-$result = doQuery($mysqli, "SELECT `server_id`, `id`, `host`, `fqdn`, `biosversion`, `biosreleasedate`, `cpu_model`, `kernel`, `kernelrelease`, `os`, `osrelease`, `saltversion`, `last_seen`, `last_audit`, `last_seen`, `package_total` FROM `minion`;");
+
+$serverId = filter_input(INPUT_GET, 'server_id', FILTER_VALIDATE_INT);
+if (!$serverId) {
+	die("Server ID not valid");
+}
+
+$result = doQuery($mysqli, "SELECT `package_name`, `package_version` FROM `package`, `minion_package` WHERE `server_id` = $serverId AND `package`.`package_id` = `minion_package`.`package_id` ORDER BY `package_name`;");
+
 while ($row = $result->fetch_assoc()) {
 	$data['data'][] = $row;
 }

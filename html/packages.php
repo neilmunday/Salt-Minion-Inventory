@@ -22,6 +22,7 @@
 !-->
 <?php
 	require_once("common.php");
+	pageStart();
 
 	$serverId = filter_input(INPUT_GET, 'server_id', FILTER_VALIDATE_INT);
 	if (!$serverId) {
@@ -37,22 +38,6 @@
 	$row = $result->fetch_assoc();
 	$serverName = $row['fqdn'];
 ?>
-
-<html lang="en">
-	<head>
-		<meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-		<title>Packages for <?php echo($serverName); ?></title>
-		<link rel="stylesheet" href="bootstrap/css/bootstrap.min.css">
-		<link rel="stylesheet" href="css/style.css">
-		<link rel="stylesheet" type="text/css" href="datatables/datatables.min.css"/>
-	</head>
-	<body>
-
-		<?php
-			$result = doQuery($mysqli, "SELECT `package_name`, `package_version` FROM `package`, `minion_package` WHERE `server_id` = $serverId AND `package`.`package_id` = `minion_package`.`package_id` ORDER BY `package_name`;");
-		?>
-
 		<div class="container-fluid">
 			<div class="row">
 				<div class="col-md-11">
@@ -72,33 +57,27 @@
 						</tr>
 						</thead>
 						<tbody>
-							<?php
-								while ($row = $result->fetch_assoc()) {
-									printf("<tr>
-										<td>%s</td>
-										<td>%s</td>
-									</tr>\n", $row["package_name"], $row["package_version"]);
-								}
-							?>
 						</tbody>
 					</table>
 				</div>
 			</div>
 		</div>
 
-		<script src="js/jquery-3.3.1.min.js"></script>
-		<script src="bootstrap/js/bootstrap.min.js"></script>
-		<script src="datatables/datatables.min.js"></script>
 		<script type="text/javascript">
 			$(document).ready(function() {
 				$('#packageTable').DataTable({
+					"ajax": "packages-json.php?server_id=<?php echo($serverId); ?>",
+					"columns": [
+						{ data: "package_name" },
+						{ data: "package_version" }
+					],
 					"responsive": true
 				});
 
 				$('#backBtn').on('click', function(){
-					document.location = "index.html";
+					document.location = "index.php";
 				});
 			});
 		</script>
-	</body>
-</html>
+
+<?php pageEnd(); ?>
