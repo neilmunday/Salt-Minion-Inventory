@@ -237,7 +237,9 @@ def audit(ts, properties, propertiesChanged):
 	# purge any deleted packages
 	__doQuery(cursor, "DELETE FROM `minion_package` WHERE `server_id` = %d AND `present` = 0;" % serverId)
 	db.commit()
-
+	# update package total
+	__doQuery(cursor, "UPDATE `minion` SET `package_total` = (SELECT COUNT(*) FROM `minion_package` WHERE `server_id` = %d) WHERE `server_id` = %d;" % (serverId, serverId))
+	db.commit()
 	return True
 
 def present(ts, minions):
