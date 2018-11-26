@@ -50,6 +50,7 @@
 						<th>Kernel</th>
 						<th>Packages</th>
 						<th>Salt Version</th>
+						<th>Selinux</th>
 						<th>Last Seen</th>
 						<th>Last Audit</th>
 					</tr>
@@ -92,7 +93,12 @@
 							}
 					},
 					{ data: "server_id", visible: false },
-					{ data: "fqdn" },
+					{
+						data: "fqdn",
+						render: function(data, type, row, meta) {
+							return "<a href=\"minion-info.php?server_id=" + row["server_id"] + "\">" + data + "</a>";
+						}
+					},
 					{ data: "os" },
 					{ data: "osrelease" },
 					{ data: "kernelrelease" },
@@ -105,7 +111,8 @@
 							return "<a href='packages.php?server_id=" + row["server_id"] + "'>" + data + "</a>";
 						}
 					},
-					{ data: "saltversion"},
+					{ data: "saltversion" },
+					{ data: "selinux_enforced" },
 					{ data: "last_seen", type: "date" },
 					{ data: "last_audit", type: "date" }
 				],
