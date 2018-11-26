@@ -26,14 +26,23 @@
 	pageStart();
 ?>
 
-	<h1>Salt Minion Inventory</h1>
-
 	<div class="container-fluid">
+		<div class="row">
+			<div class="col-md-12">
+				<h1>Salt Minion Inventory</h1>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-md-12">
+				<div id="alertBox"></div>
+			</div>
+		</div>
 		<div class="row">
 			<div class="col-md-12">
 				<table id="minionTable" class="table table-striped table-sm nowrap" width="98%">
 					<thead>
 					<tr>
+						<th></th>
 						<th>ID</th>
 						<th>Name</th>
 						<th>OS</th>
@@ -50,6 +59,11 @@
 				</table>
 			</div>
 		</div>
+		<div class="row" style="margin-top: 20px;">
+			<div class="col-md-12">
+				With selected: <button id="diffBtn" type="button" class="btn btn-primary" disabled>Diff Packages</button>
+			</div>
+		</div>
 	</div>
 
 	<script type="text/javascript">
@@ -60,10 +74,23 @@
 			minionDataTable.ajax.reload();
 		}
 
+		function showAlert(msg) {
+			$("#alertBox").empty();
+			$("#alertBox").append("<div class=\"alert alert-danger alert-dismissible fade show\"><button type=\"button\" class=\"close\" data-dismiss=\"alert\">&times;</button>" + msg + "</div>");
+			$("#alertBox").attr("visibility", "visible");
+		}
+
 		$(document).ready(function() {
 			minionDataTable = $('#minionTable').DataTable({
 				"ajax": "minions-json.php",
 				"columns": [
+					{
+							orderable: false,
+	            className: 'select-checkbox',
+							data: function() {
+								return "";
+							}
+					},
 					{ data: "server_id", visible: false },
 					{ data: "fqdn" },
 					{ data: "os" },
@@ -87,6 +114,10 @@
 				"order": [[1, 'asc']],
 				"paging": false,
 				"responsive": true,
+        select: {
+            style:    'os',
+            selector: 'td:first-child'
+        },
 				"createdRow": function(row, data, dataIndex) {
 					// highlight rows for minions that have not been
 					// heard from for over two minutes
@@ -94,7 +125,30 @@
 					if (new Date().getTime() - d.getTime() > 120000) {
 						$(row).addClass("table-danger");
 					}
+				},
+			});
+
+			minionDataTable.on("select", function(e, dt, type, indexes) {
+				if (type == "row") {
+					$("#diffBtn").prop("disabled", minionDataTable.rows('.selected').data().length != 2);
 				}
+			});
+
+			minionDataTable.on("deselect", function(e, dt, type, indexes) {
+				if (type == "row") {
+					$("#diffBtn").prop("disabled", minionDataTable.rows('.selected').data().length != 2);
+				}
+			});
+
+			$("#diffBtn").click(function(){
+				var rows = minionDataTable.rows('.selected').data();
+				// in theory this error handling code should not be
+				// triggered due to the select/deselect table event handlers
+				if (rows.length == 0 || rows.length > 2) {
+					showAlert("Please select two minions");
+					return;
+				}
+				document.location = "package-diff.php?server1=" + rows[0]["server_id"] + "&server2=" + rows[1]["server_id"];
 			});
 
 			setInterval(reloadJson, 60000); // reload feed every 60s
