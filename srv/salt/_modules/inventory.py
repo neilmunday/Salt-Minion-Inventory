@@ -34,6 +34,8 @@ __AUDIT_GRAINS = [
 	'cpu_model',
 	'fqdn',
 	'host',
+	'hwaddr_interfaces',
+	'ip4_interfaces',
 	'kernel',
 	'kernelrelease',
 	'mem_total',
@@ -59,7 +61,7 @@ def audit(force=False):
 		properties[p] = grains[p]
 
 	properties['selinux_enabled'] = grains['selinux']['enabled']
-	properties['selinux_enabled'] = grains['selinux']['enforced']
+	properties['selinux_enforced'] = grains['selinux']['enforced']
 
 	properties['pkgs'] = __salt__['pkg.list_pkgs'](versions_as_list=True)
 

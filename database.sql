@@ -24,7 +24,10 @@ CREATE TABLE `minion` (
   `os` varchar(255) DEFAULT NULL,
   `osrelease` varchar(255) DEFAULT NULL,
   `saltversion` varchar(255) DEFAULT NULL,
-  `package_total` smallint(5) unsigned NOT NULL DEFAULT '0'
+  `package_total` smallint(5) unsigned NOT NULL DEFAULT '0',
+  `selinux_enabled` tinyint(1) NOT NULL,
+  `selinux_enforced` enum('Permissive','Enforcing','Disabled','') NOT NULL DEFAULT 'Disabled',
+  `hw_interfaces` text
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 --
 -- Table structure for table `minion_package`

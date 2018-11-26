@@ -83,6 +83,17 @@ def audit(ts, properties, propertiesChanged):
 	db = __connect()
 	cursor = db.cursor()
 
+	# consolidate hwaddr_interfaces and ip4_interfaces into a string
+	hwInteracesList = []
+	for interface, addr in properties["hwaddr_interfaces"].iteritems():
+		if interface != "lo": # ignore loopback
+			s = "%s: %s" % (interface, addr)
+			if interface in properties["ip4_interfaces"]:
+				if len(properties["ip4_interfaces"][interface]) > 0:
+					s += " (%s)" % ','.join(properties["ip4_interfaces"][interface])
+			hwInteracesList.append(s)
+	hwInteraces = ",".join(hwInteracesList)
+
 	serverId = __getRecordId(cursor, "minion", "server_id", "server_id", properties["server_id"])
 	if serverId:
 		serverId = int(serverId)
@@ -113,7 +124,10 @@ def audit(ts, properties, propertiesChanged):
 				`num_gpus` = %d,
 				`os` = \"%s\",
 				`osrelease` = \"%s\",
-				`saltversion` = \"%s\"
+				`saltversion` = \"%s\",
+				`selinux_enabled` = %d,
+				`selinux_enforced` = \"%s\",
+				`hw_interfaces` = \"%s\"
 			WHERE `server_id` = %d;
 			""" % (
 				properties["os"],
@@ -133,6 +147,9 @@ def audit(ts, properties, propertiesChanged):
 				properties["os"],
 				properties["osrelease"],
 				properties["saltversion"],
+				int(properties["selinux_enabled"]),
+				properties["selinux_enforced"],
+				hwInteraces,
 				int(properties["server_id"])
 			)
 	else:
@@ -156,7 +173,10 @@ def audit(ts, properties, propertiesChanged):
 				`num_gpus`,
 				`os`,
 				`osrelease`,
-				`saltversion`
+				`saltversion`,
+				`selinux_enabled`,
+				`selinux_enforced`,
+				`hw_interfaces`
 			)
 			VALUES (
 				%d,
@@ -174,6 +194,7 @@ def audit(ts, properties, propertiesChanged):
 				%d,
 				%d,
 				"%s",
+				%d,
 				"%s",
 				"%s"
 			);
@@ -194,7 +215,10 @@ def audit(ts, properties, propertiesChanged):
 				properties["num_gpus"],
 				properties["os"],
 				properties["osrelease"],
-				properties["saltversion"]
+				properties["saltversion"],
+				int(properties["selinux_enabled"]),
+				properties["selinux_enforced"],
+				hwInteraces
 			)
 		serverId = int(properties["server_id"])
 	try:
