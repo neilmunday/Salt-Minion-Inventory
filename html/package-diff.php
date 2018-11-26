@@ -160,14 +160,6 @@
 	</div>
 </div>
 
-<script type="text/javascript">
-	$(document).ready(function() {
-		$('#backBtn').on('click', function(){
-			document.location = "index.php";
-		});
-	});
-</script>
-
 <?php
 	pageEnd();
 ?>

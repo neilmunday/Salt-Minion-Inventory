@@ -73,10 +73,6 @@
 					],
 					"responsive": true
 				});
-
-				$('#backBtn').on('click', function(){
-					document.location = "index.php";
-				});
 			});
 		</script>
 
