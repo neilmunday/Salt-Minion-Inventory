@@ -35,7 +35,7 @@ def __connect():
 	Returns a MySQLdb connection object.
 	Database settings must be put into a file called "inventory.ini"
 	in the same directory as this script with the following contents:
-	
+
 	[database]
 	user:		salt_minion
 	password:	salt_minion
@@ -194,6 +194,8 @@ def audit(ts, properties, propertiesChanged):
 				%d,
 				%d,
 				%d,
+				"%s",
+				"%s",
 				"%s",
 				%d,
 				"%s"
