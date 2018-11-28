@@ -7,8 +7,3 @@ refresh:
   module.run:
     - name: saltutil.refresh_pillar
     - order: 1
-# Sync all modules on the minion
-sync_modules:
-  module.run:
-    - name: saltutil.sync_modules
-    - refresh: True
