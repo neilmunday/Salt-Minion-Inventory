@@ -13,13 +13,16 @@ Minions only report their state, packages etc. if they have changed. Minions wil
 ## Screen Shots
 
 Example inventory:
-![Inventory](inventory.png)
+![Inventory](screenshots/inventory.png)
 
 Example packages list for a minion:
-![Packages](packages.png)
+![Packages](screenshots/packages.png)
 
 Example package diff for two minions:
-![Package Diff](package-diff.png)
+![Package Diff](screenshots/package-diff.png)
+
+Example minion info:
+![Minion Info](screenshots/minion-info.png)
 
 ## Requirements
 
