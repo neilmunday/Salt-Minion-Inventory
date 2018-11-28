@@ -50,56 +50,95 @@
 		</div>
 	</div>
 	<div class="row">
-		<div class="col-md-2">&nbsp;</div>
-		<div class="col-md-6">
-			<table class="table table-bordered">
-				<tr>
-					<td>CPUs:</td>
-					<td><?php echo($row["num_cpus"]); ?></td>
-				</tr>
-				<tr>
-					<td>CPU Model:</td>
-					<td><?php echo($row["cpu_model"]); ?></td>
-				</tr>
-				<tr>
-					<td>GPUs:</td>
-					<td><?php echo($row["num_gpus"]); ?></td>
-				</tr>
-				<tr>
-					<td>Memory:</td>
-					<td><?php echo($row["mem_total"]); ?> MB</td>
-				</tr>
-				<tr>
-					<td>BIOS:</td>
-					<td><?php echo($row["biosversion"]); ?> (<?php echo($row["biosreleasedate"]); ?>)</td>
-				</tr>
-				<tr>
-					<td>OS:</td>
-					<td><?php echo($row["os"] . ' ' . $row["osrelease"]); ?></td>
-				</tr>
-				<tr>
-					<td>Kernel:</td>
-					<td><?php echo($row["kernelrelease"]); ?></td>
-				</tr>
-				<tr>
-					<td>Salt Version:</td>
-					<td><?php echo($row["saltversion"]); ?></td>
-				</tr>
-				<tr>
-					<td>Selinux:</td>
-					<td><?php echo($row["selinux_enforced"]); ?></td>
-				</tr>
-				<tr>
-					<td>Packages:</td>
-					<td><a href="packages.php?server_id=<?php echo($serverId); ?>"><?php echo($row["package_total"]); ?></a></td>
-				</tr>
-				<tr>
-					<td>Interfaces:</td>
-					<td><?php echo(preg_replace('/,/', "<br/>\n", $row["hw_interfaces"])); ?></td>
-				</tr>
-			</table>
+		<div class="col-md-4">
+			<div class="card">
+				<div class="card-header">Hardware</div>
+				<div class="card-body">
+					<table class="table table-responsive table-sm table-borderless">
+						<tr>
+							<td>CPUs:</td>
+							<td><?php echo($row["num_cpus"]); ?></td>
+						</tr>
+						<tr>
+							<td nowrap>CPU Model:</td>
+							<td><?php echo($row["cpu_model"]); ?></td>
+						</tr>
+						<tr>
+							<td>GPUs:</td>
+							<td><?php echo($row["num_gpus"]); ?></td>
+						</tr>
+						<tr>
+							<td>Memory:</td>
+							<td><?php echo($row["mem_total"]); ?> MB</td>
+						</tr>
+						<tr>
+							<td>BIOS:</td>
+							<td><?php echo($row["biosversion"]); ?> (<?php echo($row["biosreleasedate"]); ?>)</td>
+						</tr>
+						<tr>
+							<td nowrap>Last Seen:</td>
+							<td><?php echo($row["last_seen"]); ?></td>
+						</tr>
+					</table>
+				</div>
+			</div>
 		</div>
-		<div class="col-md-2">&nbsp;</div>
+		<div class="col-md-4">
+			<div class="card">
+				<div class="card-header">Software</div>
+				<div class="card-body">
+					<table class="table table-responsive table-sm table-borderless">
+						<tr>
+							<td>OS:</td>
+							<td><?php echo($row["os"] . ' ' . $row["osrelease"]); ?></td>
+						</tr>
+						<tr>
+							<td>Kernel:</td>
+							<td><?php echo($row["kernelrelease"]); ?></td>
+						</tr>
+						<tr>
+							<td>Salt Version:</td>
+							<td><?php echo($row["saltversion"]); ?></td>
+						</tr>
+						<tr>
+							<td>Selinux:</td>
+							<td><?php echo($row["selinux_enforced"]); ?></td>
+						</tr>
+						<tr>
+							<td>Packages:</td>
+							<td><a href="packages.php?server_id=<?php echo($serverId); ?>"><?php echo($row["package_total"]); ?></a></td>
+						</tr>
+						<tr>
+							<td>Last Audit:</td>
+							<td><?php echo($row["last_audit"]); ?></td>
+						</tr>
+					</table>
+				</div>
+			</div>
+		</div>
+		<div class="col-md-4">
+			<div class="card">
+				<div class="card-header">Network</div>
+				<div class="card-body">
+					<table class="table table-responsive table-sm table-borderless">
+						<?php
+							$result = doQuery($mysqli, "SELECT `interface`.`interface_id`, `interface_name`, `mac` FROM `interface`, `minion_interface` WHERE `server_id` = $serverId AND `interface`.`interface_id` = `minion_interface`.`interface_id` ORDER BY `interface_name`;");
+							while ($row = $result->fetch_assoc()) {
+								echo("<tr>\n");
+								echo("<td>" . $row["interface_name"] . "</td>\n");
+								echo("<td>" . $row["mac"] . "</td>\n");
+								echo("<td>");
+								$subResult = doQuery($mysqli, "SELECT `ip4` FROM `minion_ip4` WHERE `server_id` = $serverId AND `interface_id` = " . $row["interface_id"] . " ORDER BY `ip4`;");
+								while ($subRow = $subResult->fetch_assoc()) {
+									echo($subRow["ip4"] . "<br/>\n");
+								}
+								echo("</td>");
+								echo("</tr>\n");
+							}
+						?>
+					</table>
+			</div>
+		</div>
 	</div>
 </div>
 

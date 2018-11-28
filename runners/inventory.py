@@ -83,17 +83,6 @@ def audit(ts, properties, propertiesChanged):
 	db = __connect()
 	cursor = db.cursor()
 
-	# consolidate hwaddr_interfaces and ip4_interfaces into a string
-	hwInteracesList = []
-	for interface, addr in properties["hwaddr_interfaces"].iteritems():
-		if interface != "lo": # ignore loopback
-			s = "%s: %s" % (interface, addr)
-			if interface in properties["ip4_interfaces"]:
-				if len(properties["ip4_interfaces"][interface]) > 0:
-					s += " (%s)" % ','.join(properties["ip4_interfaces"][interface])
-			hwInteracesList.append(s)
-	hwInteraces = ",".join(hwInteracesList)
-
 	serverId = __getRecordId(cursor, "minion", "server_id", "server_id", properties["server_id"])
 	if serverId:
 		serverId = int(serverId)
@@ -126,8 +115,7 @@ def audit(ts, properties, propertiesChanged):
 				`osrelease` = \"%s\",
 				`saltversion` = \"%s\",
 				`selinux_enabled` = %d,
-				`selinux_enforced` = \"%s\",
-				`hw_interfaces` = \"%s\"
+				`selinux_enforced` = \"%s\"
 			WHERE `server_id` = %d;
 			""" % (
 				properties["os"],
@@ -149,7 +137,6 @@ def audit(ts, properties, propertiesChanged):
 				properties["saltversion"],
 				int(properties["selinux_enabled"]),
 				properties["selinux_enforced"],
-				hwInteraces,
 				int(properties["server_id"])
 			)
 	else:
@@ -175,8 +162,7 @@ def audit(ts, properties, propertiesChanged):
 				`osrelease`,
 				`saltversion`,
 				`selinux_enabled`,
-				`selinux_enforced`,
-				`hw_interfaces`
+				`selinux_enforced`
 			)
 			VALUES (
 				%d,
@@ -195,7 +181,6 @@ def audit(ts, properties, propertiesChanged):
 				%d,
 				"%s",
 				%d,
-				"%s",
 				"%s"
 			);
 			""" % (
@@ -217,8 +202,7 @@ def audit(ts, properties, propertiesChanged):
 				properties["osrelease"],
 				properties["saltversion"],
 				int(properties["selinux_enabled"]),
-				properties["selinux_enforced"],
-				hwInteraces
+				properties["selinux_enforced"]
 			)
 		serverId = int(properties["server_id"])
 	try:
@@ -228,6 +212,30 @@ def audit(ts, properties, propertiesChanged):
 		log.error("inventory.audit: failed for %s" % properties["host"])
 		log.error(e)
 		return False
+	# process network inerfaces
+	__doQuery(cursor, "UPDATE `minion_interface` SET `present` = 0 WHERE `server_id` = %d;" % serverId)
+	db.commit()
+	__doQuery(cursor, "UPDATE `minion_ip4` SET `present` = 0 WHERE `server_id` = %d;" % serverId)
+	db.commit()
+	for interface, addr in properties["hwaddr_interfaces"].iteritems():
+		if interface != "lo":
+			interfaceId = __getRecordId(cursor, "interface", "interface_id", "interface_name", interface)
+			if not interfaceId:
+				__doQuery(cursor, "INSERT INTO `interface` (`interface_name`) VALUES (\"%s\");" % interface)
+				interfaceId = cursor.lastrowid
+				db.commit()
+			__doQuery(cursor, "INSERT INTO `minion_interface` (`server_id`, `interface_id`, `mac`, `present`) VALUES (%d, %d, \"%s\", 1) ON DUPLICATE KEY UPDATE `present` = 1, `mac` = \"%s\";" % (serverId, interfaceId, addr, addr))
+			db.commit()
+			if interface in properties["ip4_interfaces"]:
+				if len(properties["ip4_interfaces"][interface]) > 0:
+					for ip in properties["ip4_interfaces"][interface]:
+						__doQuery(cursor, "INSERT INTO `minion_ip4` (`server_id`, `interface_id`, `ip4`, `present`) VALUES (%d, %d, \"%s\", 1) ON DUPLICATE KEY UPDATE `present` = 1;" % (serverId, interfaceId, ip))
+						db.commit()
+
+	__doQuery(cursor, "DELETE FROM `minion_ip4` WHERE `server_id` = %d AND `present` = 0;" % serverId)
+	db.commit()
+	__doQuery(cursor, "DELETE FROM `minion_interface` WHERE `server_id` = %d AND `present` = 0;" % serverId)
+	db.commit()
 
 	# tidy-up package records if previous run failed
 	__doQuery(cursor, "DELETE FROM `minion_package` WHERE `server_id` = %d AND `present` = 0;" % serverId)
