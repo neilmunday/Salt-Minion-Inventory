@@ -18,6 +18,9 @@ Example inventory:
 Example packages list for a minion:
 ![Packages](packages.png)
 
+Example package diff for two minions:
+![Package Diff](package-diff.png)
+
 ## Requirements
 
 * A web server that supports PHP (e.g. Apache)
