@@ -54,8 +54,8 @@
 	$packages[$server2Id] = [];
 
 	while ($row = $result->fetch_assoc()) {
-		if (!in_array($row["package_name"], $packages["all"])) {
-			$packages["all"][] = $row["package_name"];
+		if (!array_key_exists($row["package_name"], $packages["all"])) {
+			$packages["all"][$row["package_name"]] = 1;
 		}
 		if (array_key_exists($row["package_name"], $packages[$row["server_id"]])) {
 			$packages[$row["server_id"]][$row["package_name"]][] = $row["package_version"];
@@ -92,7 +92,7 @@
 				</thead>
 				<tbody>
 					<?php
-						foreach ($packages['all'] as $package) {
+						foreach ($packages['all'] as $package => $foo) {
 							$packageOnServer1 = array_key_exists($package, $packages[$server1Id]);
 							$packageOnServer2 = array_key_exists($package, $packages[$server2Id]);
 							if ($packageOnServer1 && $packageOnServer2) {
