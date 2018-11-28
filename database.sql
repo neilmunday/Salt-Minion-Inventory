@@ -39,7 +39,7 @@ DROP TABLE IF EXISTS `minion_interface`;
 CREATE TABLE IF NOT EXISTS `minion_interface` (
   `server_id` int(11) NOT NULL,
   `interface_id` smallint(6) NOT NULL,
-  `mac` varchar(11) NOT NULL,
+  `mac` varchar(17) NOT NULL,
   `present` tinyint(1) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 --
