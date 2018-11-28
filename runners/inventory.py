@@ -20,24 +20,39 @@
 #    along with Salt Minion Inventory.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+import ConfigParser
 import MySQLdb
 import MySQLdb.cursors
 import logging
+import os
 import subprocess
 
 log = logging.getLogger(__name__)
-
-# chnage the following to match your database set-up
-dbName = "salt_minion"
-dbUser = "salt_minion"
-dbPassword = "salt_minion"
-dbHost = "localhost"
 
 def __connect():
 	"""
 	Helper function to connect to the database.
 	Returns a MySQLdb connection object.
+	Database settings must be put into a file called "inventory.ini"
+	in the same directory as this script with the following contents:
+	
+	[database]
+	user:		salt_minion
+	password:	salt_minion
+	host:		localhost
+	name:		salt_minion
 	"""
+	CONFIG_FILE = os.path.join(os.path.dirname(os.path.realpath(__file__)), "inventory.ini")
+	log.debug("inventory.__connect: using config file: %s" % CONFIG_FILE)
+	if not os.path.exists(CONFIG_FILE):
+		raise Exception("%s does not exist or is not readable" % CONFIG_FILE)
+	configParser = ConfigParser.ConfigParser()
+	configParser.read(CONFIG_FILE)
+	dbUser = configParser.get("database", "user")
+	dbPassword = configParser.get("database", "password")
+	dbHost = configParser.get("database", "host")
+	dbName = configParser.get("database", "name")
+
 	log.debug("inventory.__connect: connection to %s on %s as %s" % (dbName, dbHost, dbUser))
 	try:
 		db = MySQLdb.connect(
