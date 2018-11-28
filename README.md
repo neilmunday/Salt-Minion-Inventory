@@ -59,7 +59,7 @@ Create a directory to store the runner on the SaltMaster:
 mkdir -p /var/lib/salt/runners
 ```
 
-Copy `inventory.py` into the directory. Note: change the MySQL variables to match the credentials that you used when creating the database above.
+Copy `runners/inventory.py` and `runners/inventory.ini` into the directory. Note: change the MySQL variables to match the credentials that you used when creating the database above in `inventory.ini`.
 
 Edit `/etc/salt/master` to enable the runner, presence events and reactors for responding to events:
 
