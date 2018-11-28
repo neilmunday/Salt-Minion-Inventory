@@ -35,54 +35,36 @@
 	}
 
 	$mysqli = dbConnect();
-	// get server names
-	$result = doQuery($mysqli, "SELECT `fqdn` FROM `minion` WHERE `server_id` = $server1Id;");
-	if ($result->num_rows == 0) {
-		die("Could not find $server1Id");
-	}
-	$row = $result->fetch_assoc();
-	$server1Name = $row["fqdn"];
-	$result->close();
-	$result = doQuery($mysqli, "SELECT `fqdn` FROM `minion` WHERE `server_id` = $server2Id;");
-	if ($result->num_rows == 0) {
-		die("Could not find $server2Id");
-	}
-	$row = $result->fetch_assoc();
-	$server2Name = $row["fqdn"];
-	$result->close();
 
-	$server1Pkgs = [];
-	$server1PkgVersions = [];
-	$server2Pkgs = [];
-	$server2PkgVersions = [];
-	$result = doQuery($mysqli, "SELECT `package_name`, `package_version` FROM `package`, `minion_package` WHERE `server_id` = $server1Id AND `package`.`package_id` = `minion_package`.`package_id` ORDER BY `package_name`, `package_version`;");
-	while ($row = $result->fetch_assoc()) {
-		$server1Pkgs[] = $row["package_name"];
-		if (!array_key_exists($row["package_name"], $server1PkgVersions)) {
-			$server1PkgVersions[$row["package_name"]] = array($row["package_version"]);
-		}
-		else {
-			$server1PkgVersions[$row["package_name"]][] = $row["package_version"];
-		}
+	$result = doQuery($mysqli, "SELECT `server_id`, `fqdn`, `package_total` FROM `minion` WHERE `server_id` = $server1Id OR `server_id` = $server2Id;");
+	if ($result->num_rows == 0) {
+		die("Could not find $server1Id or $server2Id");
 	}
-	$result->close();
-	$result = doQuery($mysqli, "SELECT `package_name`, `package_version` FROM `package`, `minion_package` WHERE `server_id` = $server2Id AND `package`.`package_id` = `minion_package`.`package_id` ORDER BY `package_name`, `package_version`;");
+	$servers = [];
 	while ($row = $result->fetch_assoc()) {
-		$server2Pkgs[] = $row["package_name"];
-		if (!array_key_exists($row["package_name"], $server2PkgVersions)) {
-			$server2PkgVersions[$row["package_name"]] = array($row["package_version"]);
-		}
-		else {
-			$server2PkgVersions[$row["package_name"]][] = $row["package_version"];
-		}
+		$servers[$row["server_id"]] = array("name" => $row["fqdn"], "package_total" => $row["package_total"]);
 	}
 	$result->close();
 
-	$server1Pkgs = array_unique($server1Pkgs);
-	$server2Pkgs = array_unique($server2Pkgs);
-	$merged = array_merge($server1Pkgs, $server2Pkgs);
-	$notOnServer1 = array_diff($server2Pkgs, $server1Pkgs);
-	$notOnServer2 = array_diff($server1Pkgs, $server2Pkgs);
+	$result = doQuery($mysqli, "SELECT `server_id`, `package_name`, `package_version` FROM `package`, `minion_package` WHERE (`server_id` = $server1Id OR `server_id` = $server2Id) AND `package`.`package_id` = `minion_package`.`package_id` ORDER BY `package_name`, `package_version`;");
+
+	$packages = [];
+	$packages["all"] = [];
+	$packages[$server1Id] = [];
+	$packages[$server2Id] = [];
+
+	while ($row = $result->fetch_assoc()) {
+		if (!in_array($row["package_name"], $packages["all"])) {
+			$packages["all"][] = $row["package_name"];
+		}
+		if (array_key_exists($row["package_name"], $packages[$row["server_id"]])) {
+			$packages[$row["server_id"]][$row["package_name"]][] = $row["package_version"];
+		}
+		else {
+			$packages[$row["server_id"]][$row["package_name"]] = [$row["package_version"]];
+		}
+	}
+	$result->close();
 ?>
 
 <div class="container-fluid">
@@ -96,7 +78,7 @@
 	</div>
 	<div class="row">
 		<div class="col-md-12">
-			<p>The difference in packages between <?php echo($server1Name); ?> and <?php echo($server2Name); ?> are show below:</p>
+			<p>The difference in packages between <a href="minion-info.php?server_id=<?php echo($server1Id); ?>"><?php echo($servers[$server1Id]["name"]); ?></a> and <a href="minion-info.php?server_id=<?php echo($server2Id); ?>"><?php echo($servers[$server2Id]["name"]); ?></a> are show below:</p>
 		</div>
 	</div>
 	<div class="row">
@@ -104,62 +86,62 @@
 			<table class="table table-sm">
 				<thead>
 					<tr>
-						<th><?php echo($server1Name); ?></th>
-						<th><?php echo($server2Name); ?></th>
+						<th><?php echo($servers[$server1Id]["name"] . " (" . $servers[$server1Id]["package_total"] . ")"); ?></th>
+						<th><?php echo($servers[$server2Id]["name"] . " (" . $servers[$server2Id]["package_total"] . ")"); ?></th>
 					</tr>
 				</thead>
 				<tbody>
 					<?php
-						foreach ($merged as $p) {
-							if (!in_array($p, $notOnServer1) && !in_array($p, $notOnServer2)) {
-								// are versions the same?
-								$m = array_merge($server1PkgVersions[$p], $server2PkgVersions[$p]);
-								$versionsNotOnServer1 = array_diff($server2PkgVersions[$p], $server1PkgVersions[$p]);
-								$versionsNotOnServer2 = array_diff($server1PkgVersions[$p], $server2PkgVersions[$p]);
-								foreach ($m as $v) {
-									if (!in_array($v, $versionsNotOnServer1) && !in_array($v, $versionsNotOnServer2)) {
+						foreach ($packages['all'] as $package) {
+							$packageOnServer1 = array_key_exists($package, $packages[$server1Id]);
+							$packageOnServer2 = array_key_exists($package, $packages[$server2Id]);
+							if ($packageOnServer1 && $packageOnServer2) {
+								$merged = array_unique(array_merge($packages[$server1Id][$package], $packages[$server2Id][$package]));
+								foreach ($merged as $v) {
+									$onServer1 = in_array($v, $packages[$server1Id][$package]);
+									$onServer2 = in_array($v, $packages[$server2Id][$package]);
+									if ($onServer1 && $onServer2) {
 										echo("<tr>\n");
-										echo("<td>$p-$v</td>\n");
-										echo("<td>$p-$v</td>\n");
+										echo("<td>$package-$v</td>\n");
+										echo("<td>$package-$v</td>\n");
 										echo("</tr>\n");
 									}
-									else if (in_array($v, $versionsNotOnServer1)) {
-										echo("<tr class=\"table-danger\">\n");
+									else if ($onServer1) {
+										echo("<tr class=\"table-success\">\n");
+										echo("<td>$package-$v</td>\n");
 										echo("<td>&nbsp;</td>\n");
-										echo("<td>$p-$v</td>\n");
 										echo("</tr>\n");
 									}
-									else if (in_array($v, $versionsNotOnServer2)) {
+									else {
 										echo("<tr class=\"table-danger\">\n");
-										echo("<td>$p-$v</td>\n");
 										echo("<td>&nbsp;</td>\n");
+										echo("<td>$package-$v</td>\n");
 										echo("</tr>\n");
 									}
 								}
 							}
-							else if (in_array($p, $notOnServer1)) {
-								foreach ($server2PkgVersions[$p] as $v) {
-									echo("<tr class=\"table-danger\">\n");
-									echo("<td>$p-$v</td>\n");
+							else if ($packageOnServer1) {
+								foreach ($packages[$server1Id][$package] as $v) {
+									echo("<tr class=\"table-success\">\n");
+									echo("<td>$package-$v</td>\n");
 									echo("<td>&nbsp;</td>\n");
-									echo("</tr>\n");
+									echo("<tr>\n");
 								}
 							}
-							else if (in_array($p, $notOnServer2)) {
-								foreach ($server1PkgVersions[$p] as $v) {
+							else {
+								foreach ($packages[$server2Id][$package] as $v) {
 									echo("<tr class=\"table-danger\">\n");
-									echo("<td>$p-$v</td>\n");
 									echo("<td>&nbsp;</td>\n");
-									echo("</tr>\n");
+									echo("<td>$package-$v</td>\n");
+									echo("<tr>\n");
 								}
 							}
 						}
 					?>
 				</tbody>
+			</table>
 		</div>
 	</div>
 </div>
 
-<?php
-	pageEnd();
-?>
+<?php pageEnd(); ?>
