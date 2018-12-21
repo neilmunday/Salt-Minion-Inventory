@@ -60,9 +60,9 @@ def audit(force=False):
 	for p in __AUDIT_GRAINS:
 		properties[p] = grains[p]
 
-	if 'selinux_enabled' in properties and 'selinux_enforced' in properties:
+	if 'selinux' in grains and 'enabled' in grains['selinux'] and 'enforced' in grains['selinux']:
 		properties['selinux_enabled'] = grains['selinux']['enabled']
-		properties['selinux_enforced'] = grains['selinux']['enforced'].encode()
+		properties['selinux_enforced'] = grains['selinux']['enforced']
 	else:
 		properties['selinux_enabled'] = False
 		properties['selinux_enforced'] = 'Disabled'
