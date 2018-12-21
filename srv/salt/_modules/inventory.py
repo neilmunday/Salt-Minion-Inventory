@@ -69,7 +69,7 @@ def audit(force=False):
 
 	properties['pkgs'] = __salt__['pkg.list_pkgs'](versions_as_list=True)
 
-	checksum = hashlib.md5(str(properties)).hexdigest()
+	checksum = hashlib.md5(str(properties).encode()).hexdigest()
 
 	cacheFile = "/var/tmp/salt_inventory_audit.cache"
 	if not force and os.path.exists(cacheFile):
