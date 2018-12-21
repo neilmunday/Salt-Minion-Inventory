@@ -60,8 +60,12 @@ def audit(force=False):
 	for p in __AUDIT_GRAINS:
 		properties[p] = grains[p]
 
-	properties['selinux_enabled'] = grains['selinux']['enabled']
-	properties['selinux_enforced'] = grains['selinux']['enforced']
+	if 'selinux_enabled' in properties and 'selinux_enforced' in properties:
+		properties['selinux_enabled'] = grains['selinux']['enabled']
+		properties['selinux_enforced'] = grains['selinux']['enforced'].encode()
+	else:
+		properties['selinux_enabled'] = False
+		properties['selinux_enforced'] = 'Disabled'
 
 	properties['pkgs'] = __salt__['pkg.list_pkgs'](versions_as_list=True)
 
