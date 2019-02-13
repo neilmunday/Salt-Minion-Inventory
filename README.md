@@ -28,8 +28,10 @@ Example minion info:
 
 * A web server that supports PHP (e.g. Apache)
 * A MySQL server
+* PHP MySQL support
 * A web browser that supports JS and CSS
 * a SaltStack master and minions
+* MySQL-python module
 
 ## Installation
 
