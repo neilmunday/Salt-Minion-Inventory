@@ -33,6 +33,7 @@ __AUDIT_GRAINS = [
 	'biosversion',
 	'cpu_model',
 	'fqdn',
+	'gpus',
 	'host',
 	'hwaddr_interfaces',
 	'ip4_interfaces',

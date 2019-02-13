@@ -50,7 +50,7 @@
 		</div>
 	</div>
 	<div class="row">
-		<div class="col-md-4">
+		<div class="col-md-6">
 			<div class="card">
 				<div class="card-header">Hardware</div>
 				<div class="card-body">
@@ -83,7 +83,7 @@
 				</div>
 			</div>
 		</div>
-		<div class="col-md-4">
+		<div class="col-md-6">
 			<div class="card">
 				<div class="card-header">Software</div>
 				<div class="card-body">
@@ -116,7 +116,26 @@
 				</div>
 			</div>
 		</div>
-		<div class="col-md-4">
+	</div>
+	<div class="row">
+		<div class="col-md-6">
+			<div class="card">
+				<div class="card-header">Graphics Cards</div>
+				<div class="card-body">
+					<table class="table table-responsive table-sm table-borderless">
+						<?php
+							$result = doQuery($mysqli, "SELECT `gpu_vendor`, `gpu_model` FROM `minion_gpu`, `gpu` WHERE `server_id` = $serverId AND `minion_gpu`.`gpu_id` = `gpu`.`gpu_id`;");
+							while ($row = $result->fetch_assoc()) {
+								echo("<tr>\n");
+								echo("<td>" . $row["gpu_model"] . " (" . $row["gpu_vendor"] . ")</td>\n");
+								echo("</tr>");
+							}
+						?>
+					</table>
+				</div>
+			</div>
+		</div>
+		<div class="col-md-6">
 			<div class="card">
 				<div class="card-header">Network</div>
 				<div class="card-body">

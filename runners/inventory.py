@@ -229,6 +229,23 @@ def audit(ts, properties, propertiesChanged):
 		log.error("inventory.audit: failed for %s" % properties["host"])
 		log.error(e)
 		return False
+	# process GPUs
+	__doQuery(cursor, "UPDATE `minion_gpu` SET `present` = 0 WHERE `server_id` = %d;" % serverId)
+	#for model, vendor in properties["gpus"].iteritems():
+	for gpu in properties["gpus"]:
+		__doQuery(cursor, "SELECT `gpu_id` FROM `gpu` WHERE `gpu_model` = \"%s\" AND `gpu_vendor` = \"%s\";" % (gpu["model"], gpu["vendor"]))
+		if cursor.rowcount == 0:
+			# add new GPU
+			__doQuery(cursor, "INSERT INTO `gpu` (`gpu_model`, `gpu_vendor`) VALUES (\"%s\", \"%s\");" % (gpu["model"], gpu["vendor"]))
+			gpuId = cursor.lastrowid
+			db.commit()
+		else:
+			gpuId = cursor.fetchone()['gpu_id']
+		__doQuery(cursor, "INSERT INTO `minion_gpu` (`server_id`, `gpu_id`, `present`) VALUES (%d, %d, 1) ON DUPLICATE KEY UPDATE `present` = 1;" % (serverId, gpuId))
+		db.commit()
+	# delete removed GPUs
+	__doQuery(cursor, "DELETE FROM `minion_gpu` WHERE `present` = 0;")
+	db.commit()
 	# process network inerfaces
 	__doQuery(cursor, "UPDATE `minion_interface` SET `present` = 0 WHERE `server_id` = %d;" % serverId)
 	db.commit()
