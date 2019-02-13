@@ -1,5 +1,9 @@
 # Change Log
 
+## Version 1.4 (2019-02-13)
+
+* Added recording of graphics cards for each minion for issue #11)
+
 ## Version 1.3 (2018-12-21)
 
 * Bug fix for minions that do not have selinux installed (issue #8)
