@@ -3,6 +3,7 @@
 ## Version 1.4 (2019-02-13)
 
 * Added recording of graphics cards for each minion for issue #11)
+* Update to work with SaltStack 2019 - issue #14
 
 ## Version 1.3 (2018-12-21)
 
