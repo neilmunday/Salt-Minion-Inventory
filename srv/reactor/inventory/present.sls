@@ -35,4 +35,4 @@
 inventory_present:
   runner.inventory.present:
     - ts: {{ data['_stamp'] }}
-    - minions: {{ data['present'] }}
+    - minions: {{ data['present']|tojson }}

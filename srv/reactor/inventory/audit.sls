@@ -34,5 +34,5 @@
 inventory_audit:
   runner.inventory.audit:
     - ts: {{ data['_stamp'] }}
-    - properties: {{ data['data']['properties'] }}
+    - properties: {{ data['data']['properties']|tojson }}
     - propertiesChanged: {{ data['data']['propertiesChanged'] }}
