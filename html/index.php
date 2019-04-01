@@ -49,6 +49,7 @@
 						<th>Release</th>
 						<th>Kernel</th>
 						<th>Packages</th>
+						<th>Users</th>
 						<th>Salt Version</th>
 						<th>Selinux</th>
 						<th>Last Seen</th>
@@ -87,7 +88,7 @@
 				"columns": [
 					{
 							orderable: false,
-	            className: 'select-checkbox',
+	            			className: 'select-checkbox',
 							data: function() {
 								return "";
 							}
@@ -111,25 +112,25 @@
 							return "<a href='packages.php?server_id=" + row["server_id"] + "'>" + data + "</a>";
 						}
 					},
+					{ data: "users" },
 					{ data: "saltversion" },
 					{ data: "selinux_enforced" },
-					{ data: "last_seen", type: "date" },
-					{ data: "last_audit", type: "date" }
+					{ data: "last_seen", render: $.fn.dataTable.render.moment('X', 'YYYY-MM-DD HH:mm') },
+					{ data: "last_audit", render: $.fn.dataTable.render.moment('X', 'YYYY-MM-DD HH:mm') }
 				],
 				"info": true,
 				"ordering": true,
 				"order": [[1, 'asc']],
 				"paging": false,
 				"responsive": true,
-        select: {
-            style:    'os',
-            selector: 'td:first-child'
-        },
+		        select: {
+		            style:    'os',
+		            selector: 'td:first-child'
+		        },
 				"createdRow": function(row, data, dataIndex) {
 					// highlight rows for minions that have not been
 					// heard from for over two minutes
-					var d = new Date(data["last_seen"]);
-					if (new Date().getTime() - d.getTime() > 120000) {
+					if (new Date().getTime() - (data["last_seen"] * 1000) > 120000){
 						$(row).addClass("table-danger");
 					}
 				},

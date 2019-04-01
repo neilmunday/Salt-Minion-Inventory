@@ -1,6 +1,6 @@
 # Salt-Minion-Inventory
 
-Provides a web based interface to your SaltStack minions to view their state and package information.
+Provides a web based interface to your SaltStack minions to view their state, hardware, software and package information.
 
 [Bootstrap](https://getbootstrap.com), [Datatables.net](https://datatables.net) and [jQuery](https://jquery.com) are used to create the user interface.
 

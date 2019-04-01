@@ -21,10 +21,12 @@
 #
 
 import ConfigParser
+import datetime
 import MySQLdb
 import MySQLdb.cursors
 import logging
 import os
+import pytz
 import subprocess
 
 log = logging.getLogger(__name__)
@@ -85,6 +87,28 @@ def __getRecordId(cursor, table, keyField, field, value):
 		return cursor.fetchone()[keyField]
 	return None
 
+def __getTimeStamp(tsStr):
+	"""
+	Helper function to convert a Salt time stamp string
+	into a Unix timestamp.
+	Credit: David Murray @dajamu
+	"""
+	return int(pytz.timezone("UTC").localize(datetime.datetime.strptime(tsStr, "%Y-%m-%dT%H:%M:%S.%f")).strftime("%s"))
+
+def __getVendorId(db, cursor, vendor):
+	"""
+	Helper function to get a vendor ID.
+	"""
+	__doQuery(cursor, "SELECT `vendor_id` FROM `vendor` WHERE `vendor_name` = '%s';" % vendor)
+	if cursor.rowcount == 0:
+		# add new vendor
+		__doQuery(cursor, "INSERT INTO `vendor` (`vendor_name`) VALUES ('%s');" % vendor)
+		vendorId = cursor.lastrowid
+		db.commit()
+	else:
+		vendorId = cursor.fetchone()['vendor_id']
+	return vendorId
+
 def audit(ts, properties, propertiesChanged):
 	"""
 	This function is called by a minion's inventory.audit function
@@ -95,6 +119,7 @@ def audit(ts, properties, propertiesChanged):
 	Otherwise only the server_id field will be populated.
 	The minon's state is saved into the database.
 	"""
+	ts = __getTimeStamp(ts)
 	db = __connect()
 	cursor = db.cursor()
 
@@ -114,7 +139,7 @@ def audit(ts, properties, propertiesChanged):
 			SET
 				`os` = \"%s\",
 				`osrelease` = \"%s\",
-				`last_audit` = \"%s\",
+				`last_audit` = %d,
 				`id` = \"%s\",
 				`biosreleasedate` = \"%s\",
 				`biosversion` = \"%s\",
@@ -181,8 +206,8 @@ def audit(ts, properties, propertiesChanged):
 			)
 			VALUES (
 				%d,
-				"%s",
-				"%s",
+				%d,
+				%d,
 				"%s",
 				"%s",
 				"%s",
@@ -229,14 +254,40 @@ def audit(ts, properties, propertiesChanged):
 		log.error("inventory.audit: failed for %s" % properties["host"])
 		log.error(e)
 		return False
+	# process users
+	__doQuery(cursor, "UPDATE `minion_user` SET `present` = 0 WHERE `server_id` = %d;" % serverId)
+	db.commit()
+	for user in properties['users']:
+		userId = __getRecordId(cursor, "user", "user_id", "user_name", user)
+		if not userId:
+			__doQuery(cursor, "INSERT INTO `user` (`user_name`) VALUES (\"%s\");" % user)
+			userId = cursor.lastrowid
+			db.commit()
+		__doQuery(cursor, "INSERT INTO `minion_user` (`server_id`, `user_id`, `present`) VALUES (%d, %d, 1) ON DUPLICATE KEY UPDATE `present` = 1;" % (serverId, userId))
+		db.commit()
+	# delete removed users
+	__doQuery(cursor, "DELETE FROM `minion_user` WHERE `present` = 0;")
+	db.commit()
+	# process disks
+	__doQuery(cursor, "UPDATE `minion_disk` SET `present` = 0 WHERE `server_id` = %d;" % serverId)
+	db.commit()
+	for disk in properties['disks']:
+		# new vendor?
+		vendorId = __getVendorId(db, cursor, disk['vendor'])
+		__doQuery(cursor, "INSERT INTO `minion_disk` (`server_id`, `disk_path`, `disk_serial`, `disk_size`, `vendor_id`, `present`) VALUES (%d, '%s', '%s', %d, %d, 1) ON DUPLICATE KEY UPDATE `present` = 1, `disk_serial` = '%s', `disk_size` = %d, `vendor_id` = %d;" % (serverId, disk['name'], disk['serial'], float(disk['size']), vendorId, disk['serial'], float(disk['size']), vendorId))
+		db.commit()
+	# delete removed disks
+	__doQuery(cursor, "DELETE FROM `minion_disk` WHERE `present` = 0;")
 	# process GPUs
 	__doQuery(cursor, "UPDATE `minion_gpu` SET `present` = 0 WHERE `server_id` = %d;" % serverId)
-	#for model, vendor in properties["gpus"].iteritems():
+	db.commit()
 	for gpu in properties["gpus"]:
-		__doQuery(cursor, "SELECT `gpu_id` FROM `gpu` WHERE `gpu_model` = \"%s\" AND `gpu_vendor` = \"%s\";" % (gpu["model"], gpu["vendor"]))
+		# new vendor?
+		vendorId = __getVendorId(db, cursor, gpu["vendor"])
+		__doQuery(cursor, "SELECT `gpu_id` FROM `gpu` WHERE `gpu_model` = \"%s\" AND `vendor_id` = %d;" % (gpu["model"], vendorId))
 		if cursor.rowcount == 0:
 			# add new GPU
-			__doQuery(cursor, "INSERT INTO `gpu` (`gpu_model`, `gpu_vendor`) VALUES (\"%s\", \"%s\");" % (gpu["model"], gpu["vendor"]))
+			__doQuery(cursor, "INSERT INTO `gpu` (`gpu_model`, `vendor_id`) VALUES (\"%s\", %d);" % (gpu["model"], vendorId))
 			gpuId = cursor.lastrowid
 			db.commit()
 		else:
@@ -318,6 +369,7 @@ def present(ts, minions):
 	the Inventory.audit function will be called to
 	populate the database.
 	"""
+	ts = __getTimeStamp(ts)
 	db = __connect()
 	cursor = db.cursor()
 	# process each minion

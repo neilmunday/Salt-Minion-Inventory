@@ -20,9 +20,11 @@
 #    along with Salt Minion Inventory.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+import ConfigParser
 import hashlib
 import logging
 import os
+import re
 
 log = logging.getLogger(__name__)
 
@@ -60,6 +62,34 @@ def audit(force=False):
 	properties = {}
 	for p in __AUDIT_GRAINS:
 		properties[p] = grains[p]
+
+	properties['disks'] = []
+	properties['users'] = []
+
+	for u in __salt__['status.w']():
+		if u['user'] not in properties['users']:
+			properties['users'].append(u['user'])
+
+	lsblkRe = re.compile('([A-Z]+)="(.*?)"')
+	for line in __salt__['cmd.run']('lsblk -d -o name,serial,vendor,size -P -n').split("\n"):
+		matches = lsblkRe.findall(line)
+		if len(matches) > 0:
+			disk = {}
+			for field, value in matches:
+				disk[field.lower()] = value.strip()
+			if len(disk) == 4: # name, serial, vendor, size
+				# convert size to MB
+				units = disk['size'][-1]
+				size = disk['size'][0:-1]
+				if units == 'T':
+					disk['size'] = float(size) * 1048576
+				elif units == 'G':
+					disk['size'] = float(size) * 1024
+				elif units == 'M':
+					disk['size'] = float(size)
+				elif units == 'K':
+					disks['size'] = float(size) / 1024.0
+			properties['disks'].append(disk)
 
 	if 'selinux' in grains and 'enabled' in grains['selinux'] and 'enforced' in grains['selinux']:
 		properties['selinux_enabled'] = grains['selinux']['enabled']

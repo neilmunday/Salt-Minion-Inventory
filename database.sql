@@ -8,10 +8,11 @@
 -- Table structure for table `gpu`
 --
 
-CREATE TABLE IF NOT EXISTS `gpu` (
+DROP TABLE IF EXISTS `gpu`;
+CREATE TABLE `gpu` (
   `gpu_id` smallint(5) unsigned NOT NULL,
   `gpu_model` varchar(255) NOT NULL,
-  `gpu_vendor` varchar(255) NOT NULL
+  `vendor_id` smallint(5) unsigned NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
@@ -20,7 +21,8 @@ CREATE TABLE IF NOT EXISTS `gpu` (
 -- Table structure for table `interface`
 --
 
-CREATE TABLE IF NOT EXISTS `interface` (
+DROP TABLE IF EXISTS `interface`;
+CREATE TABLE `interface` (
   `interface_id` smallint(5) unsigned NOT NULL,
   `interface_name` varchar(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
@@ -31,10 +33,11 @@ CREATE TABLE IF NOT EXISTS `interface` (
 -- Table structure for table `minion`
 --
 
-CREATE TABLE IF NOT EXISTS `minion` (
+DROP TABLE IF EXISTS `minion`;
+CREATE TABLE `minion` (
   `server_id` int(11) unsigned NOT NULL,
-  `last_audit` datetime DEFAULT NULL,
-  `last_seen` datetime DEFAULT NULL,
+  `last_audit` int(11) unsigned DEFAULT NULL,
+  `last_seen` int(11) unsigned DEFAULT NULL,
   `id` varchar(255) NOT NULL,
   `biosreleasedate` varchar(255) DEFAULT NULL,
   `biosversion` varchar(255) DEFAULT NULL,
@@ -57,10 +60,27 @@ CREATE TABLE IF NOT EXISTS `minion` (
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `minion_disk`
+--
+
+DROP TABLE IF EXISTS `minion_disk`;
+CREATE TABLE `minion_disk` (
+  `server_id` int(11) unsigned NOT NULL,
+  `disk_path` varchar(255) NOT NULL,
+  `disk_serial` text NOT NULL,
+  `disk_size` float unsigned NOT NULL,
+  `vendor_id` smallint(5) unsigned NOT NULL,
+  `present` tinyint(1) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `minion_gpu`
 --
 
-CREATE TABLE IF NOT EXISTS `minion_gpu` (
+DROP TABLE IF EXISTS `minion_gpu`;
+CREATE TABLE `minion_gpu` (
   `server_id` int(11) unsigned NOT NULL,
   `gpu_id` smallint(5) unsigned NOT NULL,
   `present` tinyint(1) NOT NULL
@@ -72,7 +92,8 @@ CREATE TABLE IF NOT EXISTS `minion_gpu` (
 -- Table structure for table `minion_interface`
 --
 
-CREATE TABLE IF NOT EXISTS `minion_interface` (
+DROP TABLE IF EXISTS `minion_interface`;
+CREATE TABLE `minion_interface` (
   `server_id` int(11) NOT NULL,
   `interface_id` smallint(6) NOT NULL,
   `mac` varchar(17) NOT NULL,
@@ -85,7 +106,8 @@ CREATE TABLE IF NOT EXISTS `minion_interface` (
 -- Table structure for table `minion_ip4`
 --
 
-CREATE TABLE IF NOT EXISTS `minion_ip4` (
+DROP TABLE IF EXISTS `minion_ip4`;
+CREATE TABLE `minion_ip4` (
   `server_id` int(10) unsigned NOT NULL,
   `interface_id` smallint(5) unsigned NOT NULL,
   `ip4` varchar(15) NOT NULL,
@@ -98,7 +120,8 @@ CREATE TABLE IF NOT EXISTS `minion_ip4` (
 -- Table structure for table `minion_package`
 --
 
-CREATE TABLE IF NOT EXISTS `minion_package` (
+DROP TABLE IF EXISTS `minion_package`;
+CREATE TABLE `minion_package` (
   `server_id` int(11) unsigned NOT NULL,
   `package_id` mediumint(8) unsigned NOT NULL,
   `package_version` varchar(255) NOT NULL,
@@ -108,13 +131,51 @@ CREATE TABLE IF NOT EXISTS `minion_package` (
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `minion_user`
+--
+
+DROP TABLE IF EXISTS `minion_user`;
+CREATE TABLE `minion_user` (
+  `server_id` int(11) unsigned NOT NULL,
+  `user_id` smallint(5) unsigned NOT NULL,
+  `present` tinyint(1) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `package`
 --
 
-CREATE TABLE IF NOT EXISTS `package` (
+DROP TABLE IF EXISTS `package`;
+CREATE TABLE `package` (
   `package_id` mediumint(8) unsigned NOT NULL,
   `package_name` varchar(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `user`
+--
+
+DROP TABLE IF EXISTS `user`;
+CREATE TABLE `user` (
+  `user_id` smallint(5) unsigned NOT NULL,
+  `user_name` varchar(255) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `vendor`
+--
+
+DROP TABLE IF EXISTS `vendor`;
+CREATE TABLE `vendor` (
+  `vendor_id` smallint(5) unsigned NOT NULL,
+  `vendor_name` varchar(255) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COMMENT='vendor';
 
 --
 -- Indexes for dumped tables
@@ -139,6 +200,12 @@ ALTER TABLE `minion`
   ADD PRIMARY KEY (`server_id`),
   ADD UNIQUE KEY `id` (`id`),
   ADD KEY `host` (`host`);
+
+--
+-- Indexes for table `minion_disk`
+--
+ALTER TABLE `minion_disk`
+  ADD PRIMARY KEY (`server_id`,`disk_path`);
 
 --
 -- Indexes for table `minion_gpu`
@@ -166,11 +233,29 @@ ALTER TABLE `minion_package`
   ADD KEY `serverId` (`server_id`);
 
 --
+-- Indexes for table `minion_user`
+--
+ALTER TABLE `minion_user`
+  ADD PRIMARY KEY (`server_id`,`user_id`);
+
+--
 -- Indexes for table `package`
 --
 ALTER TABLE `package`
   ADD PRIMARY KEY (`package_id`),
   ADD UNIQUE KEY `package_name` (`package_name`);
+
+--
+-- Indexes for table `user`
+--
+ALTER TABLE `user`
+  ADD PRIMARY KEY (`user_id`);
+
+--
+-- Indexes for table `vendor`
+--
+ALTER TABLE `vendor`
+  ADD PRIMARY KEY (`vendor_id`);
 
 --
 -- AUTO_INCREMENT for dumped tables
@@ -191,3 +276,13 @@ ALTER TABLE `interface`
 --
 ALTER TABLE `package`
   MODIFY `package_id` mediumint(8) unsigned NOT NULL AUTO_INCREMENT;
+--
+-- AUTO_INCREMENT for table `user`
+--
+ALTER TABLE `user`
+  MODIFY `user_id` smallint(5) unsigned NOT NULL AUTO_INCREMENT;
+--
+-- AUTO_INCREMENT for table `vendor`
+--
+ALTER TABLE `vendor`
+  MODIFY `vendor_id` smallint(5) unsigned NOT NULL AUTO_INCREMENT;

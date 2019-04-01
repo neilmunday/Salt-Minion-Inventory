@@ -1,9 +1,12 @@
 # Change Log
 
-## Version 1.4 (2019-02-13)
+## Version 1.4 (2019-04-01)
 
-* Added recording of graphics cards for each minion for issue #11)
-* Update to work with SaltStack 2019 - issue #14
+* Added recording of graphics cards for each minion for issue #11
+* Updated to work with SaltStack 2019 - issue #14
+* Added recording of users logged into each minion - issue #10
+* Bug fix for UTC date handling - issue #15
+* Added recording of disks attached to each minion - issue #9
 
 ## Version 1.3 (2018-12-21)
 

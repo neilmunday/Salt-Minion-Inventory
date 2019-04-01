@@ -28,7 +28,7 @@ $data['data'] = array();
 
 $mysqli = dbConnect();
 // get records for all the minions
-$result = doQuery($mysqli, "SELECT `server_id`, `id`, `host`, `fqdn`, `biosversion`, `biosreleasedate`, `cpu_model`, `kernel`, `kernelrelease`, `os`, `osrelease`, `saltversion`, `last_seen`, `last_audit`, `last_seen`, `package_total`, `selinux_enforced` FROM `minion`;");
+$result = doQuery($mysqli, "SELECT `server_id`, `id`, `host`, `fqdn`, `biosversion`, `biosreleasedate`, `cpu_model`, `kernel`, `kernelrelease`, `os`, `osrelease`, `saltversion`, `last_seen`, `last_audit`, `last_seen`, `package_total`, `selinux_enforced`, (SELECT COUNT(*) FROM `minion_user` WHERE `minion_user`.`server_id` = `minion`.`server_id`) AS `users` FROM `minion`;");
 while ($row = $result->fetch_assoc()) {
 	$data['data'][] = $row;
 }
