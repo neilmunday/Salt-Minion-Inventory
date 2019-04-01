@@ -42,6 +42,10 @@ function doQuery($mysqli, $query) {
 	die("Query: $query failed with error: " . $mysqli->error);
 }
 
+function formatMegaBytes($s) {
+	return sprintf("%.2f GB", $s / 1024.0);
+}
+
 function pageEnd() {
 	echo("
 		</body>
@@ -60,8 +64,10 @@ function pageStart() {
 			<link rel=\"stylesheet\" href=\"css/style.css\">
 			<link rel=\"stylesheet\" type=\"text/css\" href=\"datatables/datatables.min.css\"/>
 			<script src=\"js/jquery-3.3.1.min.js\"></script>
+			<script src=\"js/moment.min.js\"></script>
 			<script src=\"bootstrap/js/bootstrap.min.js\"></script>
 			<script src=\"datatables/datatables.min.js\"></script>
+			<script src=\"datatables/datetime.js\"></script>
 			<script src=\"js/common.js\"></script>
 		</head>
 		<body>
