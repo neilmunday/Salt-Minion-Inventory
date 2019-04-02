@@ -120,7 +120,7 @@
 				],
 				"info": true,
 				"ordering": true,
-				"order": [[1, 'asc']],
+				"order": [[2, 'asc']],
 				"paging": false,
 				"responsive": true,
 		        select: {
