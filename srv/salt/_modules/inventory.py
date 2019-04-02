@@ -71,13 +71,13 @@ def audit(force=False):
 			properties['users'].append(u['user'])
 
 	lsblkRe = re.compile('([A-Z]+)="(.*?)"')
-	for line in __salt__['cmd.run']('lsblk -d -o name,serial,vendor,size -P -n').split("\n"):
+	for line in __salt__['cmd.run']('lsblk -d -o name,serial,vendor,size,type -P -n').split("\n"):
 		matches = lsblkRe.findall(line)
 		if len(matches) > 0:
 			disk = {}
 			for field, value in matches:
 				disk[field.lower()] = value.strip()
-			if len(disk) == 4: # name, serial, vendor, size
+			if len(disk) == 5 and disk['type'] == 'disk': # name, serial, vendor, size, type
 				# convert size to MB
 				units = disk['size'][-1]
 				size = disk['size'][0:-1]
@@ -89,7 +89,7 @@ def audit(force=False):
 					disk['size'] = float(size)
 				elif units == 'K':
 					disks['size'] = float(size) / 1024.0
-			properties['disks'].append(disk)
+				properties['disks'].append(disk)
 
 	if 'selinux' in grains and 'enabled' in grains['selinux'] and 'enforced' in grains['selinux']:
 		properties['selinux_enabled'] = grains['selinux']['enabled']
