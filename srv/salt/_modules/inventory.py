@@ -20,7 +20,6 @@
 #    along with Salt Minion Inventory.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-import ConfigParser
 import hashlib
 import logging
 import os
