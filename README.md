@@ -32,6 +32,7 @@ Example minion info:
 * A web browser that supports JS and CSS
 * a SaltStack master and minions
 * MySQL-python module
+* pytz python module
 
 ## Installation
 
