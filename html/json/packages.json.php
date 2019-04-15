@@ -21,18 +21,22 @@
   along with Salt Minion Inventory.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-require_once("common.php");
+$root = dirname(__FILE__) . "/..";
+require_once($root . "/common/common.php");
+
+$id = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
+if (!$id) {
+	die("Server ID not valid");
+}
 
 $data = array();
-$data['data'] = array();
+$sth  = dbQuery("SELECT `package_name`, `package_version` FROM `package`, `minion_package` WHERE `server_id` = $id AND `package`.`package_id` = `minion_package`.`package_id` ORDER BY `package_name`;");
 
-$mysqli = dbConnect();
-// get records for all the minions
-$result = doQuery($mysqli, "SELECT `server_id`, `id`, `host`, `fqdn`, `biosversion`, `biosreleasedate`, `cpu_model`, `kernel`, `kernelrelease`, `os`, `osrelease`, `saltversion`, `last_seen`, `last_audit`, `last_seen`, `package_total`, `selinux_enforced`, (SELECT COUNT(*) FROM `minion_user` WHERE `minion_user`.`server_id` = `minion`.`server_id`) AS `users` FROM `minion`;");
-while ($row = $result->fetch_assoc()) {
-	$data['data'][] = $row;
+$data['data'] = array();
+while($row = $sth->fetch()) {
+        $data['data'][] = $row;
 }
+
 // return as JSON
 echo(json_encode($data));
-$mysqli->close();
 ?>

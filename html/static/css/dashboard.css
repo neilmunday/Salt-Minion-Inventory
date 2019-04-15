@@ -1,0 +1,13 @@
+body {
+	background  : #ffffff;
+	padding-top : 80px;
+}
+
+.navbar-brand {
+	margin-right : 40px;
+}
+
+main {
+	/*font-size    : .875rem;*/
+	font-size : 10pt;
+}
