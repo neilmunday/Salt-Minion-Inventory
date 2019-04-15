@@ -46,6 +46,12 @@ function details($id) {
 	$lastSeen		= date('Y-m-d H:i:s', $row["last_seen"]);
 	$lastAudit		= date('Y-m-d H:i:s', $row["last_audit"]);
 
+	$active = filter_input(INPUT_GET, 'tab', FILTER_SANITIZE_STRING);
+
+	if($active === NULL || !in_array($active, $details)) {
+		$active = "Summary";
+	}
+
 	printPageStart($row['fqdn']);
 
 	echo <<<EOT
@@ -55,12 +61,11 @@ function details($id) {
 
 EOT;
 	
-	$i = 0;
 	foreach($details as $tab) {
-		if($i++ > 0) {
-			printf("\t\t\t\t<li class=\"nav-item\"><a aria-selected=\"false\" aria-controls=\"%s\" class=\"nav-link\" data-toggle=\"tab\" id=\"tab-%s\" href=\"#content-%s\" role=\"tab\">%s</a></li>\n", $tab, $tab, $tab, $tab);
-		} else {
+		if ($active == $tab) {
 			printf("\t\t\t\t<li class=\"nav-item\"><a aria-selected=\"true\" aria-controls=\"%s\" class=\"nav-link active\" data-toggle=\"tab\" id=\"tab-%s\" href=\"#content-%s\" role=\"tab\">%s</a></li>\n", $tab, $tab, $tab, $tab);
+		} else {
+			printf("\t\t\t\t<li class=\"nav-item\"><a aria-selected=\"false\" aria-controls=\"%s\" class=\"nav-link\" data-toggle=\"tab\" id=\"tab-%s\" href=\"#content-%s\" role=\"tab\">%s</a></li>\n", $tab, $tab, $tab, $tab);
 		}
 	}
 
@@ -69,122 +74,115 @@ EOT;
 		</div>
 		<div class="card-block" style="overflow-y: auto;">
 			<div class="tab-content" id="minionTabContent">
-				<!-- SUMMARY TAB -->
-				<div class="tab-pane show active p-3" id="content-Summary" role="tabpanel" aria-labelledby="tab-Summary">
-					<table class="table table-responsive table-sm table-borderless">
-						<tr><td>CPUs:</td><td>{$row["num_cpus"]}</td></tr>
-						<tr><td nowrap>CPU Model:</td><td>{$row["cpu_model"]}</td></tr>
-						<tr><td>GPUs:</td><td>{$row["num_gpus"]}</td></tr>
-						<tr><td>Memory:</td><td>{$row["mem_total"]} MB</td></tr>
-						<tr><td>BIOS:</td><td>{$row["biosversion"]} ({$row["biosreleasedate"]})</td></tr>
-						<tr><td nowrap>Last Seen:</td><td>{$lastSeen}</td></tr>
-					</table>
-				</div>
 
-				<!-- SOFTWARE TAB -->
-				<div class="tab-pane p-3" id="content-Software" role="tabpanel" aria-labelledby="tab-Software">
-					<table class="table table-responsive table-sm table-borderless">
-						<tr><td>OS:</td><td>{$row["os"]} {$row["osrelease"]}</td></tr>
-						<tr><td>Kernel:</td><td>{$row["kernelrelease"]}</td></tr>
-						<tr><td>Salt Version:</td><td>{$row["saltversion"]}</td></tr>
-						<tr><td>Selinux:</td><td>{$row["selinux_enforced"]}</td></tr>
-						<tr><td>Packages:</td><td><a href="#" onclick="$('#tab-Packages').trigger('click');">{$row["package_total"]}</a></td></tr>
-						<tr><td>Last Audit:</td><td>{$lastAudit}</td></tr>
-					</table>
-				</div>
-
-				<!-- PACKAGES TAB -->
-				<div class="tab-pane p-3" id="content-Packages" role="tabpanel" aria-labelledby="tab-Packages">
-					<table id="packageTable" class="table table-striped table-sm" width="100%">
-						<thead><tr><th>Package</th><th>Version</th></tr></thead>
-						<tbody></tbody>
-					</table>
-				</div>
-
-				<!-- DISKS TAB -->
-				<div class="tab-pane p-3" id="content-Disks" role="tabpanel" aria-labelledby="tab-Disks">
-					<table class="table table-responsive table-sm table-borderless">
-						<tr><th>Path</th><th>Size</th><th>Vendor</th><th>Serial</th></tr>
 EOT;
 
-	$disk_sth = dbQuery("SELECT `vendor_name`, `disk_path`, `disk_serial`, `disk_size` FROM `minion_disk`, `vendor` WHERE `server_id` = $id AND `minion_disk`.`vendor_id` = `vendor`.`vendor_id`;");
+	$prefix = "\t\t\t\t";
 
-	echo("\n");
-	while ($disk_row = $disk_sth->fetch()) {
-		echo("\t\t\t\t\t\t<tr>");
-		echo("<td>" . $disk_row["disk_path"] . "</td>");
-		//echo("<td>" . formatMegaBytes($row["disk_size"]) . "</td>\n");
-		echo("<td>" . $disk_row["disk_size"] . "</td>");
-		echo("<td>" . $disk_row["vendor_name"] . "</td>");
-		echo("<td>" . $disk_row["disk_serial"] . "</td>");
-		echo("</tr>\n");
-	}
+	foreach($details as $tab) {
+		printf("%s<!-- %s TAB -->\n", $prefix, strtoupper($tab));
+		printf("%s<div class=\"tab-pane %sp-3\" id=\"content-%s\" role=\"tabpanel\" aria-labelledby=\"tab-%s\">\n", $prefix, ($active == $tab) ? "show active " : "", $tab, $tab);
 
-	echo <<<EOT
-					</table>
-				</div>
+		switch ($tab) {
+			case "Summary":
+				printf("%s\t<table class=\"table table-responsive table-sm table-borderless\">\n", $prefix);
+				printf("%s\t\t<tr><td>CPUs:</td><td>%s</td></tr>\n", $prefix, $row["num_cpus"]);
+				printf("%s\t\t<tr><td nowrap>CPU Model:</td><td>%s</td></tr>\n", $prefix, $row["cpu_model"]);
+				printf("%s\t\t<tr><td>GPUs:</td><td>%s</td></tr>\n", $prefix, $row["num_gpus"]);
+				printf("%s\t\t<tr><td>Memory:</td><td>%s MB</td></tr>\n", $prefix, $row["mem_total"]);
+				printf("%s\t\t<tr><td>BIOS:</td><td>%s (%s)</td></tr>\n", $prefix, $row["biosversion"], $row["biosreleasedate"]);
+				printf("%s\t\t<tr><td nowrap>Last Seen:</td><td>%s</td></tr>\n", $prefix, $lastSeen);
+				printf("%s\t</table>\n", $prefix);
+				break;
+			case "Software":
+				printf("%s\t<table class=\"table table-responsive table-sm table-borderless\">\n", $prefix);
+				printf("%s\t\t<tr><td>OS:</td><td>%s %s</td></tr>\n", $prefix, $row["os"], $row["osrelease"]);
+				printf("%s\t\t<tr><td>Kernel:</td><td>%s</td></tr>\n", $prefix, $row["kernelrelease"]);
+				printf("%s\t\t<tr><td>Salt Version:</td><td>%s</td></tr>\n", $prefix, $row["saltversion"]);
+				printf("%s\t\t<tr><td>Selinux:</td><td>%s</td></tr>\n", $prefix, $row["selinux_enforced"]);
+				printf("%s\t\t<tr><td>Packages:</td><td><a href=\"#\" onclick=\"$('#tab-Packages').trigger('click');\">%s</a></td></tr>\n", $prefix, $row["package_total"]);
+				printf("%s\t\t<tr><td>Last Audit:</td><td>%s</td></tr>\n", $prefix, $lastAudit);
+				printf("%s\t</table>\n", $prefix);
+				break;
+			case "Packages":
+				printf("%s\t<table id=\"packageTable\" class=\"table table-striped table-sm\" width=\"100%%\">\n", $prefix);
+				printf("%s\t\t<thead><tr><th>Package</th><th>Version</th></tr></thead>\n", $prefix);
+				printf("%s\t\t<tbody></tbody>\n", $prefix);
+				printf("%s\t</table>\n", $prefix);
+				break;
+			case "Disks":
+				printf("%s\t<table class=\"table table-responsive table-sm table-borderless\">\n", $prefix);
+				printf("%s\t\t<tr><th>Path</th><th>Size</th><th>Vendor</th><th>Serial</th></tr>\n", $prefix);
 
-				<!-- NETWORK TAB -->
-				<div class="tab-pane p-3" id="content-Network" role="tabpanel" aria-labelledby="tab-Network">
-					<table class="table table-responsive table-sm table-borderless">
-						<tr><th>Interface</th><th>MAC</th><th>IP</th></tr>
-EOT;
+				$disk_sth = dbQuery("SELECT `vendor_name`, `disk_path`, `disk_serial`, `disk_size` FROM `minion_disk`, `vendor` WHERE `server_id` = $id AND `minion_disk`.`vendor_id` = `vendor`.`vendor_id`;");
 
-	$nw_sth = dbQuery("SELECT `interface`.`interface_id`, `interface_name`, `mac` FROM `interface`, `minion_interface` WHERE `server_id` = $id AND `interface`.`interface_id` = `minion_interface`.`interface_id` ORDER BY `interface_name`;");
+				while ($disk_row = $disk_sth->fetch()) {
+					printf("%s\t\t<tr>", $prefix);
+					printf("<td>" . $disk_row["disk_path"] . "</td>");
+					//printf("<td>" . formatMegaBytes($row["disk_size"]) . "</td>\n");
+					printf("<td>" . $disk_row["disk_size"] . "</td>");
+					printf("<td>" . $disk_row["vendor_name"] . "</td>");
+					printf("<td>" . $disk_row["disk_serial"] . "</td>");
+					printf("</tr>\n");
+				}
 
-	echo("\n");
-	while ($nw_row = $nw_sth->fetch()) {
-		echo("\t\t\t\t\t\t<tr>");
-		echo("<td>" . $nw_row["interface_name"] . "</td>");
-		echo("<td>" . $nw_row["mac"] . "</td>");
-		echo("<td>");
-		$nw_sub = dbQuery("SELECT `ip4` FROM `minion_ip4` WHERE `server_id` = $id AND `interface_id` = " . $nw_row["interface_id"] . " ORDER BY `ip4`;");
-		while ($nw_sub_row = $nw_sub->fetch()) {
-			echo($nw_sub_row["ip4"] . "<br/>");
+				printf("%s\t</table>\n", $prefix);
+				break;
+			case "Network":
+				printf("%s\t<table class=\"table table-responsive table-sm table-borderless\">\n", $prefix);
+				printf("%s\t\t<tr><th>Interface</th><th>MAC</th><th>IP</th></tr>\n", $prefix);
+
+				$nw_sth = dbQuery("SELECT `interface`.`interface_id`, `interface_name`, `mac` FROM `interface`, `minion_interface` WHERE `server_id` = $id AND `interface`.`interface_id` = `minion_interface`.`interface_id` ORDER BY `interface_name`;");
+
+				while ($nw_row = $nw_sth->fetch()) {
+					printf("%s\t\t<tr>", $prefix);
+					printf("<td>" . $nw_row["interface_name"] . "</td>");
+					printf("<td>" . $nw_row["mac"] . "</td>");
+					printf("<td>");
+
+					$nw_sub = dbQuery("SELECT `ip4` FROM `minion_ip4` WHERE `server_id` = $id AND `interface_id` = " . $nw_row["interface_id"] . " ORDER BY `ip4`;");
+					while ($nw_sub_row = $nw_sub->fetch()) {
+						printf($nw_sub_row["ip4"] . "<br/>");
+					}
+
+					printf("</td>");
+					printf("</tr>\n");
+				}
+
+				printf("%s\t</table>\n", $prefix);
+				break;
+			case "GPUs":
+				printf("%s\t<table class=\"table table-responsive table-sm table-borderless\">\n", $prefix);
+				printf("%s\t\t<tr><th>Model</th><th>Vendor</th></tr>\n", $prefix);
+	
+				$gpu_sth = dbQuery("SELECT `vendor_name`, `gpu_model` FROM `minion_gpu`, `gpu`, `vendor` WHERE `server_id` = $id AND `minion_gpu`.`gpu_id` = `gpu`.`gpu_id` AND `gpu`.`vendor_id` = `vendor`.`vendor_id`;");
+	
+				while ($gpu_row = $gpu_sth->fetch()) {
+					printf("%s\t\t<tr>", $prefix);
+					printf("<td>" . $gpu_row["gpu_model"] . "</td>");
+					printf("<td>" . $gpu_row["vendor_name"] . "</td>");
+					printf("</tr>\n");
+				}
+	
+				printf("%s\t</table>\n", $prefix);
+				break;
+			case "Users":
+				printf("%s\t<p>The following users are logged in to this minon:</p>\n", $prefix);
+				printf("%s\t<ul>\n", $prefix);
+
+				$user_sth = dbQuery("SELECT `user_name` FROM `minion_user`, `user` WHERE `server_id` = $id AND `minion_user`.`user_id` = `user`.`user_id` ORDER BY `user_name`;");
+				while ($user_row = $user_sth->fetch()) {
+					printf("%s\t<li>" . $user_row["user_name"] . "</li>\n", $prefix);
+				}
+
+				printf("%s\t</ul>\n", $prefix);
+				break;
 		}
-		echo("</td>");
-		echo("</tr>\n");
+
+		printf("%s</div>\n", $prefix);
 	}
 
 	echo <<<EOT
-					</table>
-				</div>
-
-				<!-- GPU TAB -->
-				<div class="tab-pane p-3" id="content-GPUs" role="tabpanel" aria-labelledby="tab-GPUs">
-					<table class="table table-responsive table-sm table-borderless">
-						<tr><th>Model</th><th>Vendor</th></tr>
-EOT;
-
-$gpu_sth = dbQuery("SELECT `vendor_name`, `gpu_model` FROM `minion_gpu`, `gpu`, `vendor` WHERE `server_id` = $id AND `minion_gpu`.`gpu_id` = `gpu`.`gpu_id` AND `gpu`.`vendor_id` = `vendor`.`vendor_id`;");
-
-echo("\n");
-while ($gpu_row = $gpu_sth->fetch()) {
-	echo("\t\t\t\t\t\t<tr>");
-	echo("<td>" . $gpu_row["gpu_model"] . "</td>");
-	echo("<td>" . $gpu_row["vendor_name"] . "</td>");
-	echo("</tr>\n");
-}
-
-echo <<<EOT
-					</table>		
-				</div>
-				
-				<!-- USER TAB -->
-				<div class="tab-pane p-3" id="content-Users" role="tabpanel" aria-labelledby="tab-Users">
-					<p>The following users are logged in to this minon:</p>
-					<ul>
-EOT;
-
-	$user_sth = dbQuery("SELECT `user_name` FROM `minion_user`, `user` WHERE `server_id` = $id AND `minion_user`.`user_id` = `user`.`user_id` ORDER BY `user_name`;");
-	echo("\n");
-	while ($user_row = $user_sth->fetch()) {
-		echo("\t\t\t\t\t<li>" . $user_row["user_name"] . "</li>\n");
-	}
-
-	echo <<<EOT
-					</ul>
-				</div>
 			</div>
 		</div>
 	</div>
@@ -199,19 +197,6 @@ EOT;
 				],
 				"responsive": true
 			});
-
-
-EOT;
-
-	$active = filter_input(INPUT_GET, 'tab', FILTER_SANITIZE_STRING);
-
-	if($active !== NULL && in_array($active, $details)) {
-		printf("\t\t\t$('#tab-%s').trigger('click');\n", $active);
-	} else {
-		printf("\t\t\t$('#tab-Summary').trigger('click');\n");
-	}
-
-	echo <<<EOT
 		});
 	</script>
 
