@@ -26,7 +26,10 @@ require_once($root . "/common/common.php");
 
 $distributions = array();
 $titles = array();
+$titles['cpu']     = "CPU Count";
+$titles['gpu']     = "GPU Count";
 $titles['os']      = "Operating Systems";
+$titles['power']   = "Minion Power Status";
 $titles['salt']    = "Salt Versions";
 $titles['selinux'] = "SELinux Mode";
 
@@ -46,9 +49,13 @@ function updateDistribution($dist, $val) {
 
 printPageStart();
 
+$now = time();
 $sth = dbQuery("SELECT * FROM `minion`;");
 while($row = $sth->fetch()) {
+	updateDistribution("cpu", $row['num_cpus']);
+	updateDistribution("gpu", $row['num_gpus']);
 	updateDistribution("os", sprintf("%s %s", $row['os'], $row['osrelease']));
+	updateDistribution("power", (($now - $row['last_seen']) < 90) ? "On" : "Off");
 	updateDistribution("salt", $row['saltversion']);
 	updateDistribution("selinux", $row['selinux_enforced']);
 }
@@ -102,18 +109,15 @@ EOT;
 });
 </script>
 
-<div class="row">
-  <div class="col-md-4">
-    <div class="card">
-	  <div class="card-header">Server Information</div>
-	  <div class="card-body"><p>Details of the salt master</p><p>Details of the salt master</p><p>Details of the salt master</p><p>Details of the salt master</p></div>
-	</div>
-  </div>
+<div class="row" style="margin-top:20px;">
+  <div class="col-md-4"><div class="card"><div class="card-body"><canvas id="canvasChart_power" /></div></div></div>
+  <div class="col-md-4"><div class="card"><div class="card-body"><canvas id="canvasChart_salt" /></div></div></div>
+  <div class="col-md-4"><div class="card"><div class="card-body"><canvas id="canvasChart_os" /></div></div></div>
 </div>
 <div class="row" style="margin-top:20px;">
-  <div class="col-md-4"><div class="card"><div class="card-body"><canvas id="canvasChart_os" /></div></div></div>
-  <div class="col-md-4"><div class="card"><div class="card-body"><canvas id="canvasChart_salt" /></div></div></div>
   <div class="col-md-4"><div class="card"><div class="card-body"><canvas id="canvasChart_selinux" /></div></div></div>
+  <div class="col-md-4"><div class="card"><div class="card-body"><canvas id="canvasChart_cpu" /></div></div></div>
+  <div class="col-md-4"><div class="card"><div class="card-body"><canvas id="canvasChart_gpu" /></div></div></div>
 </div>
 
 <?php
