@@ -23,22 +23,15 @@
 
 $root = dirname(__FILE__) . "/..";
 require_once($root . "/common/constants.php");
+require_once($root . "/common/dbcreds.php");
 require_once($root . "/common/class/Database.php");
-
-function addOrdinalNumberSuffix($num) {
-	if(!in_array(($num % 100), array(11, 12, 13))) {
-		switch($num % 10) {
-			// Handle 1st, 2nd, 3rd
-			case 1:  return $num.'st';
-			case 2:  return $num.'nd';
-			case 3:  return $num.'rd';
-		}
-	}
-	return $num.'th';
-}
 
 function dbQuery($qry) {
     return getDatabase()->query($qry);
+}
+
+function formatMegaBytes($s) {
+	return sprintf("%.2f GB", $s / 1024.0);
 }
 
 function getDatabase() {

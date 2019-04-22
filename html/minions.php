@@ -118,11 +118,10 @@ EOT;
 
 				while ($disk_row = $disk_sth->fetch()) {
 					printf("%s\t\t<tr>", $prefix);
-					printf("<td>" . $disk_row["disk_path"] . "</td>");
-					//printf("<td>" . formatMegaBytes($row["disk_size"]) . "</td>\n");
-					printf("<td>" . $disk_row["disk_size"] . "</td>");
-					printf("<td>" . $disk_row["vendor_name"] . "</td>");
-					printf("<td>" . $disk_row["disk_serial"] . "</td>");
+					printf("<td>%s</td>", $disk_row["disk_path"]);
+					printf("<td>%s</td>", formatMegaBytes($disk_row["disk_size"]));
+					printf("<td>%s</td>", $disk_row["vendor_name"]);
+					printf("<td>%s</td>", $disk_row["disk_serial"]);
 					printf("</tr>\n");
 				}
 
@@ -136,13 +135,13 @@ EOT;
 
 				while ($nw_row = $nw_sth->fetch()) {
 					printf("%s\t\t<tr>", $prefix);
-					printf("<td>" . $nw_row["interface_name"] . "</td>");
-					printf("<td>" . $nw_row["mac"] . "</td>");
+					printf("<td>%s</td>", $nw_row["interface_name"]);
+					printf("<td>%s</td>", $nw_row["mac"]);
 					printf("<td>");
 
 					$nw_sub = dbQuery("SELECT `ip4` FROM `minion_ip4` WHERE `server_id` = $id AND `interface_id` = " . $nw_row["interface_id"] . " ORDER BY `ip4`;");
 					while ($nw_sub_row = $nw_sub->fetch()) {
-						printf($nw_sub_row["ip4"] . "<br/>");
+						printf("%s<br/>", $nw_sub_row["ip4"]);
 					}
 
 					printf("</td>");
@@ -159,8 +158,8 @@ EOT;
 	
 				while ($gpu_row = $gpu_sth->fetch()) {
 					printf("%s\t\t<tr>", $prefix);
-					printf("<td>" . $gpu_row["gpu_model"] . "</td>");
-					printf("<td>" . $gpu_row["vendor_name"] . "</td>");
+					printf("<td>%s</td>", $gpu_row["gpu_model"]);
+					printf("<td>%s</td>", $gpu_row["vendor_name"]);
 					printf("</tr>\n");
 				}
 	
@@ -172,7 +171,7 @@ EOT;
 
 				$user_sth = dbQuery("SELECT `user_name` FROM `minion_user`, `user` WHERE `server_id` = $id AND `minion_user`.`user_id` = `user`.`user_id` ORDER BY `user_name`;");
 				while ($user_row = $user_sth->fetch()) {
-					printf("%s\t<li>" . $user_row["user_name"] . "</li>\n", $prefix);
+					printf("%s\t<li>%s</li>\n", $prefix, $user_row["user_name"]);
 				}
 
 				printf("%s\t</ul>\n", $prefix);

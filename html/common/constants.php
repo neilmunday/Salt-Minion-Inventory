@@ -21,9 +21,6 @@
   along with Salt Minion Inventory.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-$root = dirname(__FILE__) . "/..";
-require_once($root . "/common/dbcreds.php");
-
 ini_set("date.timezone",  "Europe/London");
 ini_set("display_errors", "off");
 
