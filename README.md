@@ -90,7 +90,16 @@ systemctl restart salt-master
 
 Copy the contents of the `html` directory to a directory on your web server that is being served, e.g. `/var/www/html`
 
-Edit `html/common.php` to match your MySQL database settings.
+Create a file in the `common` folder called dbcreds.php with the following contents (adjusted to match your MySQL database settings):
+
+```php
+<?php
+define("DB_HOST", "localhost");
+define("DB_NAME", "salt_db");
+define("DB_PASS", "password");
+define("DB_USER", "salt_user");
+?>
+```
 
 ## Salt Commands
 
