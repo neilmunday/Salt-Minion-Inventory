@@ -26,5 +26,5 @@ ini_set("display_errors", "off");
 
 define("HOMEPAGE",        "/overview.php");
 define("SITE_NAME",       "Salt Minion Inventory");
-define("WWW_INSTALL_DIR", "/salt");
+//define("WWW_INSTALL_DIR", "/salt");
 ?>

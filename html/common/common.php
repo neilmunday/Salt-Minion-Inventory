@@ -42,18 +42,18 @@ function getDatabase() {
     return $GLOBALS['db'];
 }
 
-function getLinks() {
-    if (!array_key_exists('links', $GLOBALS) || $GLOBALS['links'] === NULL) {
-        $GLOBALS['links'] = array();
-        $GLOBALS['links'][] = array('label' => 'Overview', 'url' => mkpath("/overview.php"), 'icon' => 'pie-chart');
-        $GLOBALS['links'][] = array('label' => 'Minions', 'url' => mkpath("/minions.php"), 'icon' => 'server');
-    }
-
-    return $GLOBALS['links'];
-}
-
 function getPath() {
 	return sprintf("//%s%s", $_SERVER['HTTP_HOST'], $_SERVER['SCRIPT_NAME']);
+}
+
+function getTabs() {
+	if (!array_key_exists('tabs', $GLOBALS) || $GLOBALS['tabs'] === NULL) {
+		$GLOBALS['tabs'] = array();
+		$GLOBALS['tabs'][] = array("href" => mkPath("/overview.php"), "title" => "Overview");
+		$GLOBALS['tabs'][] = array("href" => mkPath("/minions.php"), "title" => "Minions");
+	}
+
+	return $GLOBALS['tabs'];
 }
 
 function isActivePage($url) {
@@ -61,7 +61,8 @@ function isActivePage($url) {
 }
 
 function mkPath($path = "") {
-	return sprintf("//%s%s%s", $_SERVER['HTTP_HOST'], WWW_INSTALL_DIR, $path);
+	//return sprintf("//%s%s%s", $_SERVER['HTTP_HOST'], WWW_INSTALL_DIR, $path);
+	return sprintf("//%s%s%s", $_SERVER['HTTP_HOST'], dirname($_SERVER['SCRIPT_NAME']), $path);
 }
 
 function niceTime($secs = 89867) {
@@ -90,10 +91,6 @@ function printBodyStart() {
 	$home = mkPath(HOMEPAGE);
     $site = SITE_NAME;
 
-	$tabs = array();
-	$tabs[] = array("href" => mkPath("/overview.php"), "title" => "Overview");
-	$tabs[] = array("href" => mkPath("/minions.php"), "title" => "Minions");
-
 echo <<<EOT
   <body>
 	<!-- Start of navbar code -->
@@ -108,7 +105,7 @@ echo <<<EOT
 
 EOT;
 
-	foreach($tabs as $t) {
+	foreach(getTabs() as $t) {
 		printf("\t\t\t\t<li class=\"nav-item%s\">", (getPath() == $t['href']) ? " active" : "");
 		printf("<a class=\"nav-link\" href=\"%s\">%s</a>", $t['href'], $t['title']);
 		printf("</li>\n");
