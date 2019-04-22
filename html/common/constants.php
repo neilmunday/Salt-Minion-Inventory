@@ -21,13 +21,12 @@
   along with Salt Minion Inventory.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+$root = dirname(__FILE__) . "/..";
+require_once($root . "/common/dbcreds.php");
+
 ini_set("date.timezone",  "Europe/London");
 ini_set("display_errors", "off");
 
-define("DB_HOST",         "localhost");
-define("DB_NAME",         "salt_minion");
-define("DB_PASSWD_FILE",  sprintf("%s/dbpasswd", dirname(__FILE__)));
-define("DB_USER",         "salt_minion");
 define("HOMEPAGE",        "/overview.php");
 define("SITE_NAME",       "Salt Minion Inventory");
 define("WWW_INSTALL_DIR", "/salt");

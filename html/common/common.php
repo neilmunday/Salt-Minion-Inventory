@@ -43,11 +43,7 @@ function dbQuery($qry) {
 
 function getDatabase() {
     if (!array_key_exists('db', $GLOBALS) || $GLOBALS['db'] === NULL) {
-        if (!file_exists(DB_PASSWD_FILE)) {
-            die("No database password found.");
-        }
-
-        $GLOBALS['db'] = new Database(DB_HOST, DB_USER, trim(fgets(fopen(DB_PASSWD_FILE, 'r'))), DB_NAME);
+        $GLOBALS['db'] = new Database(DB_HOST, DB_USER, DB_PASS, DB_NAME);
     }
 
     return $GLOBALS['db'];
