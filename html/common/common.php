@@ -131,7 +131,11 @@ function printHeadEnd() {
 }
 
 function printHeadStart($title = "Unknown") {
-    $title = sprintf("%s :: %s", SITE_NAME, $title);
+	if ($title !== NULL) {
+		$title = sprintf("%s :: %s", SITE_NAME, $title);
+	} else {
+		$title = SITE_NAME;
+	}
 
     printf("<!DOCTYPE html>\n");
     printf("<html lang=\"en\">\n");
