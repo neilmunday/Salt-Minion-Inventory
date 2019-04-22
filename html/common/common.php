@@ -123,10 +123,10 @@ EOT;
 }
 
 function printHeadEnd() {
-    printf("    <!-- Cookie consent code -->\n");
-    printf("    <link rel=\"stylesheet\" type=\"text/css\" href=\"%s\" />\n", mkpath("/static/css/cookieconsent.min.css"));
-    printf("    <script src=\"%s\"></script>\n", mkpath("/static/js/cookieconsent.min.js"));
-	printf("    <script>window.addEventListener('load', function(){window.cookieconsent.initialise({'palette': {'popup': {'background': '#252e39'},'button': {'background': '#14a7d0'}},'theme': 'classic'})});</script>\n");
+    //printf("    <!-- Cookie consent code -->\n");
+    //printf("    <link rel=\"stylesheet\" type=\"text/css\" href=\"%s\" />\n", mkpath("/static/css/cookieconsent.min.css"));
+    //printf("    <script src=\"%s\"></script>\n", mkpath("/static/js/cookieconsent.min.js"));
+	//printf("    <script>window.addEventListener('load', function(){window.cookieconsent.initialise({'palette': {'popup': {'background': '#252e39'},'button': {'background': '#14a7d0'}},'theme': 'classic'})});</script>\n");
     printf("  </head>\n");
 }
 
