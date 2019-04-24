@@ -47,7 +47,7 @@ mysql -u root < database.sql
 Create a user for the database:
 
 ```sql
-GRANT USAGE ON *.* TO 'salt_minion'@'%' IDENTIFIED BY PASSWORD 'salt_minion';
+GRANT USAGE ON *.* TO 'salt_minion'@'%' IDENTIFIED BY PASSWORD 'salt_minion_password';
 
 GRANT ALL PRIVILEGES ON `salt\_minion`.* TO 'salt_minion'@'%' WITH GRANT OPTION;
 ```
@@ -95,9 +95,9 @@ Create a file in the `common` folder called dbcreds.php with the following conte
 ```php
 <?php
 define("DB_HOST", "localhost");
-define("DB_NAME", "salt_db");
-define("DB_PASS", "password");
-define("DB_USER", "salt_user");
+define("DB_NAME", "salt_minion");
+define("DB_PASS", "salt_minion_password");
+define("DB_USER", "salt_minion");
 ?>
 ```
 
