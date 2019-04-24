@@ -40,11 +40,25 @@ function details($id) {
 		exit(0);
 	}
 
-	$row			= $sth->fetch();
-	$details		= array("Summary", "Software", "Packages", "Disks", "Network", "GPUs", "Users");
+	$row = $sth->fetch();
+	$details = array("Summary", "Software", "Packages", "Disks", "Network", "GPUs", "Users");
+  $disabledTabs = array();
+
+  $count_sth = dbQuery("SELECT COUNT(*) AS `total` FROM `minion_user` WHERE `server_id` = $id;");
+  $count_row = $count_sth->fetch();
+  if ($count_row['total'] == 0) {
+    $disabledTabs[] = "Users";
+  }
+
+  $count_sth = dbQuery("SELECT COUNT(*) AS `total` FROM `minion_gpu` WHERE `server_id` = $id;");
+  $count_row = $count_sth->fetch();
+  if ($count_row['total'] == 0) {
+    $disabledTabs[] = "GPUs";
+  }
+
 	$jsonPackages	= mkPath("/json/packages.json.php?id=" . $id);
-	$lastSeen		= date('Y-m-d H:i:s', $row["last_seen"]);
-	$lastAudit		= date('Y-m-d H:i:s', $row["last_audit"]);
+	$lastSeen = date('Y-m-d H:i:s', $row["last_seen"]);
+	$lastAudit = date('Y-m-d H:i:s', $row["last_audit"]);
 
 	$active = filter_input(INPUT_GET, 'tab', FILTER_SANITIZE_STRING);
 
@@ -63,9 +77,9 @@ EOT;
 
 	foreach($details as $tab) {
 		if ($active == $tab) {
-			printf("\t\t\t\t<li class=\"nav-item\"><a aria-selected=\"true\" aria-controls=\"%s\" class=\"nav-link active\" data-toggle=\"tab\" id=\"tab-%s\" href=\"#content-%s\" role=\"tab\">%s</a></li>\n", $tab, $tab, $tab, $tab);
+			printf("\t\t\t\t<li class=\"nav-item\"><a aria-selected=\"true\" aria-controls=\"%s\" class=\"nav-link active %s\" data-toggle=\"tab\" id=\"tab-%s\" href=\"#content-%s\" role=\"tab\">%s</a></li>\n", $tab, in_array($tab, $disabledTabs) ? 'disabled' : '', $tab, $tab, $tab);
 		} else {
-			printf("\t\t\t\t<li class=\"nav-item\"><a aria-selected=\"false\" aria-controls=\"%s\" class=\"nav-link\" data-toggle=\"tab\" id=\"tab-%s\" href=\"#content-%s\" role=\"tab\">%s</a></li>\n", $tab, $tab, $tab, $tab);
+			printf("\t\t\t\t<li class=\"nav-item\"><a aria-selected=\"false\" aria-controls=\"%s\" class=\"nav-link %s\" data-toggle=\"tab\" id=\"tab-%s\" href=\"#content-%s\" role=\"tab\">%s</a></li>\n", $tab, in_array($tab, $disabledTabs) ? 'disabled' : '', $tab, $tab, $tab);
 		}
 	}
 
