@@ -1,5 +1,9 @@
 # Change Log
 
+## Version 1.5 (2019-04-24)
+
+* Merged pull request #20 from @dajamu to add improved user interface
+
 ## Version 1.4 (2019-04-01)
 
 * Added recording of graphics cards for each minion for issue #11
