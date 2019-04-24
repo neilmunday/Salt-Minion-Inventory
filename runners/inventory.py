@@ -278,8 +278,9 @@ def audit(ts, properties, propertiesChanged):
 		db.commit()
 	# delete removed disks
 	__doQuery(cursor, "DELETE FROM `minion_disk` WHERE `present` = 0;")
+	db.commit()
 	# process GPUs
-	__doQuery(cursor, "UPDATE `minion_gpu` SET `present` = 0 WHERE `server_id` = %d;" % serverId)
+	__doQuery(cursor, "UPDATE `minion_gpu` SET `gpu_qty` = 0 WHERE `server_id` = %d;" % serverId)
 	db.commit()
 	for gpu in properties["gpus"]:
 		# new vendor?
@@ -292,10 +293,10 @@ def audit(ts, properties, propertiesChanged):
 			db.commit()
 		else:
 			gpuId = cursor.fetchone()['gpu_id']
-		__doQuery(cursor, "INSERT INTO `minion_gpu` (`server_id`, `gpu_id`, `present`) VALUES (%d, %d, 1) ON DUPLICATE KEY UPDATE `present` = 1;" % (serverId, gpuId))
+		__doQuery(cursor, "INSERT INTO `minion_gpu` (`server_id`, `gpu_id`, `gpu_qty`) VALUES (%d, %d, 1) ON DUPLICATE KEY UPDATE `gpu_qty` = `gpu_qty` + 1;" % (serverId, gpuId))
 		db.commit()
 	# delete removed GPUs
-	__doQuery(cursor, "DELETE FROM `minion_gpu` WHERE `present` = 0;")
+	__doQuery(cursor, "DELETE FROM `minion_gpu` WHERE `gpu_qty` = 0;")
 	db.commit()
 	# process network inerfaces
 	__doQuery(cursor, "UPDATE `minion_interface` SET `present` = 0 WHERE `server_id` = %d;" % serverId)

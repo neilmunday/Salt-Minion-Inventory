@@ -83,7 +83,7 @@ DROP TABLE IF EXISTS `minion_gpu`;
 CREATE TABLE `minion_gpu` (
   `server_id` int(11) unsigned NOT NULL,
   `gpu_id` smallint(5) unsigned NOT NULL,
-  `present` tinyint(1) NOT NULL
+  `gpu_qty` smallint(5) unsigned NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
