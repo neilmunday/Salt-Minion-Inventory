@@ -60,7 +60,7 @@ function details($id) {
 			<ul class="nav nav-tabs card-header-tabs" id="minionTabs" role="tablist">
 
 EOT;
-	
+
 	foreach($details as $tab) {
 		if ($active == $tab) {
 			printf("\t\t\t\t<li class=\"nav-item\"><a aria-selected=\"true\" aria-controls=\"%s\" class=\"nav-link active\" data-toggle=\"tab\" id=\"tab-%s\" href=\"#content-%s\" role=\"tab\">%s</a></li>\n", $tab, $tab, $tab, $tab);
@@ -153,16 +153,16 @@ EOT;
 			case "GPUs":
 				printf("%s\t<table class=\"table table-responsive table-sm table-borderless\">\n", $prefix);
 				printf("%s\t\t<tr><th>Model</th><th>Vendor</th></tr>\n", $prefix);
-	
+
 				$gpu_sth = dbQuery("SELECT `vendor_name`, `gpu_model` FROM `minion_gpu`, `gpu`, `vendor` WHERE `server_id` = $id AND `minion_gpu`.`gpu_id` = `gpu`.`gpu_id` AND `gpu`.`vendor_id` = `vendor`.`vendor_id`;");
-	
+
 				while ($gpu_row = $gpu_sth->fetch()) {
 					printf("%s\t\t<tr>", $prefix);
 					printf("<td>%s</td>", $gpu_row["gpu_model"]);
 					printf("<td>%s</td>", $gpu_row["vendor_name"]);
 					printf("</tr>\n");
 				}
-	
+
 				printf("%s\t</table>\n", $prefix);
 				break;
 			case "Users":
@@ -313,7 +313,7 @@ function summary() {
 </div>
 <div class="row">
     <div class="col-md-12">
-		<table id="minionTable" class="table table-hover table-sm table-striped" cellspacing="0" cellpadding="0">
+		<table id="minionTable" class="table table-hover table-sm table-striped nowrap" width="100%">
             <thead>
                 <tr>
                     <th></th>
