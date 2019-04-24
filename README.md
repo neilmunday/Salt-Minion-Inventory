@@ -128,6 +128,16 @@ Run the `inventory.audit` function in debug mode:
 salt -l debug '*' inventory.audit force=True
 ```
 
+## Author
+
+* Neil Munday (@neilmunday)
+
+## Contributors
+
+The following people have contributed code to the project:
+
+* David Murray (@dajamu)
+
 ## Licensing
 
 * Salt-Minion-Inventory is licensed under the [GPLv3 license](https://www.gnu.org/licenses/gpl-3.0.en.html)
