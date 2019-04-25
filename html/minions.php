@@ -41,6 +41,19 @@ function details($id) {
 	}
 
 	$row = $sth->fetch();
+
+  $serverVendor = '';
+  $serverModel = '';
+
+  if ($row['server_model_id'] > 0) {
+    $serverModel_sth = dbQuery("SELECT `vendor_name`, `server_model` FROM `server_model`, `vendor` WHERE `server_model_id` = " . $row['server_model_id'] . " AND `vendor`.`vendor_id` = `server_model`.`vendor_id`;");
+    $serverModel_row = $serverModel_sth->fetch();
+    if ($serverModel_row) {
+      $serverVendor = $serverModel_row["vendor_name"];
+      $serverModel = $serverModel_row["server_model"];
+    }
+  }
+
 	$details = array("Summary", "Software", "Packages", "Disks", "Network", "GPUs", "Users");
   $disabledTabs = array();
 
@@ -100,11 +113,13 @@ EOT;
 		switch ($tab) {
 			case "Summary":
 				printf("%s\t<table class=\"table table-responsive table-sm table-borderless\">\n", $prefix);
+        printf("%s\t\t<tr><td>Model:</td><td>%s %s</td></tr>\n", $prefix, $serverVendor, $serverModel);
 				printf("%s\t\t<tr><td>CPUs:</td><td>%s</td></tr>\n", $prefix, $row["num_cpus"]);
 				printf("%s\t\t<tr><td nowrap>CPU Model:</td><td>%s</td></tr>\n", $prefix, $row["cpu_model"]);
 				printf("%s\t\t<tr><td>GPUs:</td><td>%s</td></tr>\n", $prefix, $row["num_gpus"]);
 				printf("%s\t\t<tr><td>Memory:</td><td>%s MB</td></tr>\n", $prefix, $row["mem_total"]);
 				printf("%s\t\t<tr><td>BIOS:</td><td>%s (%s)</td></tr>\n", $prefix, $row["biosversion"], $row["biosreleasedate"]);
+        printf("%s\t\t<tr><td>Serial:</td><td>%s</td></tr>\n", $prefix, $row["server_serial"]);
 				printf("%s\t\t<tr><td nowrap>Last Seen:</td><td>%s</td></tr>\n", $prefix, $lastSeen);
 				printf("%s\t</table>\n", $prefix);
 				break;

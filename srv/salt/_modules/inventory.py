@@ -40,12 +40,15 @@ __AUDIT_GRAINS = [
 	'ip4_interfaces',
 	'kernel',
 	'kernelrelease',
+	'manufacturer',
 	'mem_total',
 	'num_cpus',
 	'num_gpus',
 	'os',
 	'osrelease',
+	'productname',
 	'saltversion',
+	'serialnumber',
 	'server_id'
 ]
 

@@ -123,6 +123,17 @@ def audit(ts, properties, propertiesChanged):
 	db = __connect()
 	cursor = db.cursor()
 
+	# new server vendor?
+	vendorId = __getVendorId(db, cursor, properties["manufacturer"])
+	__doQuery(cursor, "SELECT `server_model_id` FROM `server_model` WHERE `vendor_id` = %d AND `server_model` = \"%s\" LIMIT 0,1;" % (vendorId, properties["productname"]))
+	modelId = None
+	if cursor.rowcount == 0:
+		__doQuery(cursor, "INSERT INTO `server_model` (`server_model`, `vendor_id`) VALUES (\"%s\", %d);" % (properties["productname"], vendorId))
+		db.commit()
+		modelId = cursor.lastrowid
+	else:
+		modelId = cursor.fetchone()["server_model_id"]
+
 	serverId = __getRecordId(cursor, "minion", "server_id", "server_id", properties["server_id"])
 	if serverId:
 		serverId = int(serverId)
@@ -141,6 +152,8 @@ def audit(ts, properties, propertiesChanged):
 				`osrelease` = \"%s\",
 				`last_audit` = %d,
 				`id` = \"%s\",
+				`server_model_id` = %d,
+				`server_serial` = \"%s\",
 				`biosreleasedate` = \"%s\",
 				`biosversion` = \"%s\",
 				`cpu_model` = \"%s\",
@@ -162,6 +175,8 @@ def audit(ts, properties, propertiesChanged):
 				properties["osrelease"],
 				ts,
 				properties["id"],
+				modelId,
+				properties["serialnumber"],
 				properties["biosreleasedate"],
 				properties["biosversion"],
 				properties["cpu_model"],
@@ -188,6 +203,8 @@ def audit(ts, properties, propertiesChanged):
 				`last_audit`,
 				`last_seen`,
 				`id`,
+				`server_model_id`,
+				`server_serial`,
 				`biosreleasedate`,
 				`biosversion`,
 				`cpu_model`,
@@ -208,6 +225,8 @@ def audit(ts, properties, propertiesChanged):
 				%d,
 				%d,
 				%d,
+				%d,
+				"%s",
 				"%s",
 				"%s",
 				"%s",
@@ -230,6 +249,8 @@ def audit(ts, properties, propertiesChanged):
 				ts,
 				ts,
 				properties["id"],
+				modelId,
+				properties["serialnumber"],
 				properties["biosreleasedate"],
 				properties["biosversion"],
 				properties["cpu_model"],
