@@ -72,6 +72,8 @@ def audit(force=False):
 		if u['user'] not in properties['users']:
 			properties['users'].append(u['user'])
 
+	properties['boot_time'] = __salt__['status.uptime']()['since_t']
+
 	lsblkRe = re.compile('([A-Z]+)="(.*?)"')
 	for line in __salt__['cmd.run']('lsblk -d -o name,serial,vendor,size,type -P -n').split("\n"):
 		matches = lsblkRe.findall(line)

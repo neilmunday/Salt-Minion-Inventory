@@ -17,6 +17,7 @@ CREATE TABLE `interface` (
 DROP TABLE IF EXISTS `minion`;
 CREATE TABLE `minion` (
   `server_id` int(11) unsigned NOT NULL,
+  `boot_time` int(11) unsigned DEFAULT NULL,
   `last_audit` int(11) unsigned DEFAULT NULL,
   `last_seen` int(11) unsigned DEFAULT NULL,
   `id` varchar(255) NOT NULL,

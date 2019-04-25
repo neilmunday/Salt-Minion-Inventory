@@ -150,6 +150,7 @@ def audit(ts, properties, propertiesChanged):
 			SET
 				`os` = \"%s\",
 				`osrelease` = \"%s\",
+				`boot_time` = %d,
 				`last_audit` = %d,
 				`id` = \"%s\",
 				`server_model_id` = %d,
@@ -173,6 +174,7 @@ def audit(ts, properties, propertiesChanged):
 			""" % (
 				properties["os"],
 				properties["osrelease"],
+				properties["boot_time"],
 				ts,
 				properties["id"],
 				modelId,
@@ -200,6 +202,7 @@ def audit(ts, properties, propertiesChanged):
 		query = """
 			INSERT into `minion` (
 				`server_id`,
+				`boot_time`,
 				`last_audit`,
 				`last_seen`,
 				`id`,
@@ -226,6 +229,7 @@ def audit(ts, properties, propertiesChanged):
 				%d,
 				%d,
 				%d,
+				%d,
 				"%s",
 				"%s",
 				"%s",
@@ -246,6 +250,7 @@ def audit(ts, properties, propertiesChanged):
 			);
 			""" % (
 				properties["server_id"],
+				properties["boot_time"],
 				ts,
 				ts,
 				properties["id"],

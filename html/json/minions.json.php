@@ -25,7 +25,7 @@ $root = dirname(__FILE__) . "/..";
 require_once($root . "/common/common.php");
 
 $data = array();
-$sth  = dbQuery("SELECT `server_id`, `id`, `host`, `fqdn`, `biosversion`, `biosreleasedate`, `cpu_model`, `kernel`, `kernelrelease`, `os`, `osrelease`, `saltversion`, `last_seen`, `last_audit`, `last_seen`, `package_total`, `selinux_enforced`, (SELECT COUNT(*) FROM `minion_user` WHERE `minion_user`.`server_id` = `minion`.`server_id`) AS `users` FROM `minion`;");
+$sth  = dbQuery("SELECT `server_id`, `id`, `host`, `fqdn`, `biosversion`, `biosreleasedate`, `cpu_model`, `kernel`, `kernelrelease`, `os`, `osrelease`, `saltversion`, `last_seen`, `last_audit`, `boot_time`, `package_total`, `selinux_enforced`, (SELECT COUNT(*) FROM `minion_user` WHERE `minion_user`.`server_id` = `minion`.`server_id`) AS `users` FROM `minion`;");
 
 $data['data'] = array();
 while($row = $sth->fetch()) {

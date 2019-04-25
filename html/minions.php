@@ -21,6 +21,8 @@
   along with Salt Minion Inventory.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+define('DATE_FORMAT', 'Y-m-d H:i:s');
+
 $root = dirname(__FILE__);
 require_once($root . "/common/common.php");
 
@@ -70,8 +72,10 @@ function details($id) {
   }
 
 	$jsonPackages	= mkPath("/json/packages.json.php?id=" . $id);
-	$lastSeen = date('Y-m-d H:i:s', $row["last_seen"]);
-	$lastAudit = date('Y-m-d H:i:s', $row["last_audit"]);
+
+	$lastSeen = date(DATE_FORMAT, $row["last_seen"]);
+	$lastAudit = date(DATE_FORMAT, $row["last_audit"]);
+  $booted = date(DATE_FORMAT, $row["boot_time"]);
 
 	$active = filter_input(INPUT_GET, 'tab', FILTER_SANITIZE_STRING);
 
@@ -120,6 +124,7 @@ EOT;
 				printf("%s\t\t<tr><td>Memory:</td><td>%s MB</td></tr>\n", $prefix, $row["mem_total"]);
 				printf("%s\t\t<tr><td>BIOS:</td><td>%s (%s)</td></tr>\n", $prefix, $row["biosversion"], $row["biosreleasedate"]);
         printf("%s\t\t<tr><td>Serial:</td><td>%s</td></tr>\n", $prefix, $row["server_serial"]);
+        printf("%s\t\t<tr><td nowrap>Booted:</td><td>%s</td></tr>\n", $prefix, $booted);
 				printf("%s\t\t<tr><td nowrap>Last Seen:</td><td>%s</td></tr>\n", $prefix, $lastSeen);
 				printf("%s\t</table>\n", $prefix);
 				break;
@@ -265,28 +270,29 @@ function summary() {
                         return "";
                     }
                 },
-                {data : "server_id", visible : false},
-				{
-					data : "fqdn",
-					render: function(data, type, row, meta) {
-						return "<a href=\"minions.php?id=" + row["server_id"] + "\">" + data + "</a>";
-					}
-				},
-				{data : "os"},
+                { data : "server_id", visible : false},
+        				{
+        					data : "fqdn",
+        					render: function(data, type, row, meta) {
+        						return "<a href=\"minions.php?id=" + row["server_id"] + "\">" + data + "</a>";
+        					}
+        				},
+        				{data : "os"},
                 {data : "osrelease"},
                 {data : "kernelrelease" },
                 {
-                    data: "package_total",
-                    render: function(data, type, row, meta) {
-                        if (data == 0) {
-                            return 0;
-                        }
-						return "<a href=\"minions.php?id=" + row["server_id"] + "&amp;tab=Packages\">" + data + "</a>";
+                  data: "package_total",
+                  render: function(data, type, row, meta) {
+                    if (data == 0) {
+                        return 0;
                     }
+						        return "<a href=\"minions.php?id=" + row["server_id"] + "&amp;tab=Packages\">" + data + "</a>";
+                  }
                 },
                 { data: "users" },
                 { data: "saltversion" },
                 { data: "selinux_enforced" },
+                { data: "boot_time", render: $.fn.dataTable.render.moment('X', 'YYYY-MM-DD HH:mm') },
                 { data: "last_seen", render: $.fn.dataTable.render.moment('X', 'YYYY-MM-DD HH:mm') },
                 { data: "last_audit", render: $.fn.dataTable.render.moment('X', 'YYYY-MM-DD HH:mm') }
             ],
@@ -356,6 +362,7 @@ function summary() {
                     <th>Users</th>
                     <th>Salt Version</th>
                     <th>Selinux</th>
+                    <th>Booted</th>
                     <th>Last Seen</th>
                     <th>Last Audit</th>
                 </tr>
