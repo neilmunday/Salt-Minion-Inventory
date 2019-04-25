@@ -126,7 +126,7 @@ def audit(ts, properties, propertiesChanged):
 	# new server vendor?
 	vendorId = __getVendorId(db, cursor, properties["manufacturer"])
 	__doQuery(cursor, "SELECT `server_model_id` FROM `server_model` WHERE `vendor_id` = %d AND `server_model` = \"%s\" LIMIT 0,1;" % (vendorId, properties["productname"]))
-	modelId = None
+	modelId = 0
 	if cursor.rowcount == 0:
 		__doQuery(cursor, "INSERT INTO `server_model` (`server_model`, `vendor_id`) VALUES (\"%s\", %d);" % (properties["productname"], vendorId))
 		db.commit()
@@ -229,7 +229,7 @@ def audit(ts, properties, propertiesChanged):
 				%d,
 				%d,
 				%d,
-				%d,
+				"%s",
 				"%s",
 				"%s",
 				"%s",
