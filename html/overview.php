@@ -55,7 +55,7 @@ while($row = $sth->fetch()) {
 	updateDistribution("cpu", $row['num_cpus']);
 	updateDistribution("gpu", $row['num_gpus']);
 	updateDistribution("os", sprintf("%s %s", $row['os'], $row['osrelease']));
-	updateDistribution("power", (($now - $row['last_seen']) < 90) ? "On" : "Off");
+	updateDistribution("power", (($now - $row['last_seen']) < MINION_HEARTBEAT) ? "On" : "Off");
 	updateDistribution("salt", $row['saltversion']);
 	updateDistribution("selinux", $row['selinux_enforced']);
 }

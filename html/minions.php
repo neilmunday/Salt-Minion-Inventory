@@ -59,10 +59,15 @@ function details($id) {
 	$details = array("Summary", "Software", "Packages", "Disks", "Network", "GPUs", "Users");
   $disabledTabs = array();
 
-  $count_sth = dbQuery("SELECT COUNT(*) AS `total` FROM `minion_user` WHERE `server_id` = $id;");
-  $count_row = $count_sth->fetch();
-  if ($count_row['total'] == 0) {
+  if (time() - $row['last_seen'] > MINION_HEARTBEAT) {
     $disabledTabs[] = "Users";
+  }
+  else {
+    $count_sth = dbQuery("SELECT COUNT(*) AS `total` FROM `minion_user` WHERE `server_id` = $id;");
+    $count_row = $count_sth->fetch();
+    if ($count_row['total'] == 0) {
+      $disabledTabs[] = "Users";
+    }
   }
 
   $count_sth = dbQuery("SELECT COUNT(*) AS `total` FROM `minion_gpu` WHERE `server_id` = $id;");
@@ -245,7 +250,7 @@ function summary() {
 
 	$json = mkPath("/json/minions.json.php");
 
-    echo <<<EOT
+    $str = <<<EOT
 <script type="text/javascript">
     var minionDataTable = null;
 
@@ -309,7 +314,7 @@ function summary() {
             "createdRow" : function(row, data, dataIndex) {
                 // highlight rows for minions that have not been
                 // heard from for over two minutes
-                if (new Date().getTime() - (data["last_seen"] * 1000) > 120000){
+                if (new Date().getTime() - (data["last_seen"] * 1000) > %d){
                     $(row).addClass("table-danger");
                 }
             }
@@ -349,7 +354,7 @@ function summary() {
 </div>
 <div class="row">
     <div class="col-md-12">
-		<table id="minionTable" class="table table-hover table-sm table-striped nowrap" width="100%">
+		<table id="minionTable" class="table table-hover table-sm table-striped nowrap" width="100%%">
             <thead>
                 <tr>
                     <th></th>
@@ -374,6 +379,8 @@ function summary() {
     <div class="col-md-12">With selected: <button id="diffBtn" type="button" class="btn btn-primary" disabled>Diff Packages</button></div>
 </div>
 EOT;
+
+  printf($str, (MINION_HEARTBEAT * 1000));
 
 	printPageEnd();
 }
