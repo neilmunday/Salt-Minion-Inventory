@@ -118,7 +118,7 @@ echo <<<EOT
 	<!-- End of navbar code -->
 
 	<!-- Start of main body -->
-	<main role="main" class="container">
+	<main role="main" class="container-fluid">
 EOT;
 }
 
