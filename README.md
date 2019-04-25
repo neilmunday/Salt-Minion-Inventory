@@ -12,20 +12,26 @@ Minions only report their state, packages etc. if they have changed. Minions wil
 
 ## Screen Shots
 
-Overview:
+### Overview:
+
 ![Overview](screenshots/overview.png)
 
-Minions:
+### Minions:
+
 ![Minions](screenshots/minions.png)
 
-Package list for a minion:
+### Package list for a minion:
+
 ![Packages](screenshots/minion-info-packages.png)
 
-Minion info:
+### Minion info:
+
 ![Minion Info Summary](screenshots/minion-info-summary.png)
+
 ![Minion Info Packages](screenshots/minion-info-packages.png)
 
-Package diff for two minions:
+### Package diff for two minions:
+
 ![Package Diff](screenshots/package-diff.png)
 
 ## Requirements
