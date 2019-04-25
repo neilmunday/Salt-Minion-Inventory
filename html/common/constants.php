@@ -1,5 +1,4 @@
 <?php
-
 /*
   This file is part of the Salt Minion Inventory.
 
@@ -22,24 +21,12 @@
   along with Salt Minion Inventory.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-require_once("common.php");
+ini_set("date.timezone",  "Europe/London");
+ini_set("display_errors", "off");
 
-$data = array();
-$data['data'] = array();
+define("HOMEPAGE",        "/overview.php");
+define("SITE_NAME",       "Salt Minion Inventory");
+//define("WWW_INSTALL_DIR", "/salt");
 
-$mysqli = dbConnect();
-
-$serverId = filter_input(INPUT_GET, 'server_id', FILTER_VALIDATE_INT);
-if (!$serverId) {
-	die("Server ID not valid");
-}
-
-$result = doQuery($mysqli, "SELECT `package_name`, `package_version` FROM `package`, `minion_package` WHERE `server_id` = $serverId AND `package`.`package_id` = `minion_package`.`package_id` ORDER BY `package_name`;");
-
-while ($row = $result->fetch_assoc()) {
-	$data['data'][] = $row;
-}
-// return as JSON
-echo(json_encode($data));
-$mysqli->close();
+define("MINION_HEARTBEAT", 120); // seconds after which a minion is considered to be off
 ?>

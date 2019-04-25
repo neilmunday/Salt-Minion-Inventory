@@ -12,17 +12,27 @@ Minions only report their state, packages etc. if they have changed. Minions wil
 
 ## Screen Shots
 
-Example inventory:
-![Inventory](screenshots/inventory.png)
+### Overview:
 
-Example packages list for a minion:
-![Packages](screenshots/packages.png)
+![Overview](screenshots/overview.png)
 
-Example package diff for two minions:
+### Minions:
+
+![Minions](screenshots/minions.png)
+
+### Package list for a minion:
+
+![Packages](screenshots/minion-info-packages.png)
+
+### Minion info:
+
+![Minion Info Summary](screenshots/minion-info-summary.png)
+
+![Minion Info Packages](screenshots/minion-info-packages.png)
+
+### Package diff for two minions:
+
 ![Package Diff](screenshots/package-diff.png)
-
-Example minion info:
-![Minion Info](screenshots/minion-info.png)
 
 ## Requirements
 
@@ -47,7 +57,7 @@ mysql -u root < database.sql
 Create a user for the database:
 
 ```sql
-GRANT USAGE ON *.* TO 'salt_minion'@'%' IDENTIFIED BY PASSWORD 'salt_minion';
+GRANT USAGE ON *.* TO 'salt_minion'@'%' IDENTIFIED BY PASSWORD 'salt_minion_password';
 
 GRANT ALL PRIVILEGES ON `salt\_minion`.* TO 'salt_minion'@'%' WITH GRANT OPTION;
 ```
@@ -90,7 +100,16 @@ systemctl restart salt-master
 
 Copy the contents of the `html` directory to a directory on your web server that is being served, e.g. `/var/www/html`
 
-Edit `html/common.php` to match your MySQL database settings.
+Create a file in the `common` folder called dbcreds.php with the following contents (adjusted to match your MySQL database settings):
+
+```php
+<?php
+define("DB_HOST", "localhost");
+define("DB_NAME", "salt_minion");
+define("DB_PASS", "salt_minion_password");
+define("DB_USER", "salt_minion");
+?>
+```
 
 ## Salt Commands
 
@@ -118,6 +137,16 @@ Run the `inventory.audit` function in debug mode:
 ```bash
 salt -l debug '*' inventory.audit force=True
 ```
+
+## Author
+
+* Neil Munday (@neilmunday)
+
+## Contributors
+
+The following people have contributed code to the project:
+
+* David Murray (@dajamu)
 
 ## Licensing
 

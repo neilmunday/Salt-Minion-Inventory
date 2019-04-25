@@ -123,6 +123,17 @@ def audit(ts, properties, propertiesChanged):
 	db = __connect()
 	cursor = db.cursor()
 
+	# new server vendor?
+	vendorId = __getVendorId(db, cursor, properties["manufacturer"])
+	__doQuery(cursor, "SELECT `server_model_id` FROM `server_model` WHERE `vendor_id` = %d AND `server_model` = \"%s\" LIMIT 0,1;" % (vendorId, properties["productname"]))
+	modelId = None
+	if cursor.rowcount == 0:
+		__doQuery(cursor, "INSERT INTO `server_model` (`server_model`, `vendor_id`) VALUES (\"%s\", %d);" % (properties["productname"], vendorId))
+		db.commit()
+		modelId = cursor.lastrowid
+	else:
+		modelId = cursor.fetchone()["server_model_id"]
+
 	serverId = __getRecordId(cursor, "minion", "server_id", "server_id", properties["server_id"])
 	if serverId:
 		serverId = int(serverId)
@@ -139,8 +150,11 @@ def audit(ts, properties, propertiesChanged):
 			SET
 				`os` = \"%s\",
 				`osrelease` = \"%s\",
+				`boot_time` = %d,
 				`last_audit` = %d,
 				`id` = \"%s\",
+				`server_model_id` = %d,
+				`server_serial` = \"%s\",
 				`biosreleasedate` = \"%s\",
 				`biosversion` = \"%s\",
 				`cpu_model` = \"%s\",
@@ -160,8 +174,11 @@ def audit(ts, properties, propertiesChanged):
 			""" % (
 				properties["os"],
 				properties["osrelease"],
+				properties["boot_time"],
 				ts,
 				properties["id"],
+				modelId,
+				properties["serialnumber"],
 				properties["biosreleasedate"],
 				properties["biosversion"],
 				properties["cpu_model"],
@@ -185,9 +202,12 @@ def audit(ts, properties, propertiesChanged):
 		query = """
 			INSERT into `minion` (
 				`server_id`,
+				`boot_time`,
 				`last_audit`,
 				`last_seen`,
 				`id`,
+				`server_model_id`,
+				`server_serial`,
 				`biosreleasedate`,
 				`biosversion`,
 				`cpu_model`,
@@ -208,6 +228,9 @@ def audit(ts, properties, propertiesChanged):
 				%d,
 				%d,
 				%d,
+				%d,
+				%d,
+				"%s",
 				"%s",
 				"%s",
 				"%s",
@@ -227,9 +250,12 @@ def audit(ts, properties, propertiesChanged):
 			);
 			""" % (
 				properties["server_id"],
+				properties["boot_time"],
 				ts,
 				ts,
 				properties["id"],
+				modelId,
+				properties["serialnumber"],
 				properties["biosreleasedate"],
 				properties["biosversion"],
 				properties["cpu_model"],
@@ -278,8 +304,9 @@ def audit(ts, properties, propertiesChanged):
 		db.commit()
 	# delete removed disks
 	__doQuery(cursor, "DELETE FROM `minion_disk` WHERE `present` = 0;")
+	db.commit()
 	# process GPUs
-	__doQuery(cursor, "UPDATE `minion_gpu` SET `present` = 0 WHERE `server_id` = %d;" % serverId)
+	__doQuery(cursor, "UPDATE `minion_gpu` SET `gpu_qty` = 0 WHERE `server_id` = %d;" % serverId)
 	db.commit()
 	for gpu in properties["gpus"]:
 		# new vendor?
@@ -292,10 +319,10 @@ def audit(ts, properties, propertiesChanged):
 			db.commit()
 		else:
 			gpuId = cursor.fetchone()['gpu_id']
-		__doQuery(cursor, "INSERT INTO `minion_gpu` (`server_id`, `gpu_id`, `present`) VALUES (%d, %d, 1) ON DUPLICATE KEY UPDATE `present` = 1;" % (serverId, gpuId))
+		__doQuery(cursor, "INSERT INTO `minion_gpu` (`server_id`, `gpu_id`, `gpu_qty`) VALUES (%d, %d, 1) ON DUPLICATE KEY UPDATE `gpu_qty` = `gpu_qty` + 1;" % (serverId, gpuId))
 		db.commit()
 	# delete removed GPUs
-	__doQuery(cursor, "DELETE FROM `minion_gpu` WHERE `present` = 0;")
+	__doQuery(cursor, "DELETE FROM `minion_gpu` WHERE `gpu_qty` = 0;")
 	db.commit()
 	# process network inerfaces
 	__doQuery(cursor, "UPDATE `minion_interface` SET `present` = 0 WHERE `server_id` = %d;" % serverId)

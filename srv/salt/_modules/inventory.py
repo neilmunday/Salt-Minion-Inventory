@@ -40,12 +40,15 @@ __AUDIT_GRAINS = [
 	'ip4_interfaces',
 	'kernel',
 	'kernelrelease',
+	'manufacturer',
 	'mem_total',
 	'num_cpus',
 	'num_gpus',
 	'os',
 	'osrelease',
+	'productname',
 	'saltversion',
+	'serialnumber',
 	'server_id'
 ]
 
@@ -68,6 +71,8 @@ def audit(force=False):
 	for u in __salt__['status.w']():
 		if u['user'] not in properties['users']:
 			properties['users'].append(u['user'])
+
+	properties['boot_time'] = __salt__['status.uptime']()['since_t']
 
 	lsblkRe = re.compile('([A-Z]+)="(.*?)"')
 	for line in __salt__['cmd.run']('lsblk -d -o name,serial,vendor,size,type -P -n').split("\n"):

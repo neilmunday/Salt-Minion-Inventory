@@ -21,8 +21,22 @@
   along with Salt Minion Inventory.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-$root = dirname(__FILE__);
+$root = dirname(__FILE__) . "/..";
 require_once($root . "/common/common.php");
 
-header('location:' . mkPath(HOMEPAGE));
+$id = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
+if (!$id) {
+	die("Server ID not valid");
+}
+
+$data = array();
+$sth  = dbQuery("SELECT `package_name`, `package_version` FROM `package`, `minion_package` WHERE `server_id` = $id AND `package`.`package_id` = `minion_package`.`package_id` ORDER BY `package_name`;");
+
+$data['data'] = array();
+while($row = $sth->fetch()) {
+        $data['data'][] = $row;
+}
+
+// return as JSON
+echo(json_encode($data));
 ?>
