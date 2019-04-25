@@ -166,14 +166,15 @@ EOT;
 				break;
 			case "GPUs":
 				printf("%s\t<table class=\"table table-responsive table-sm table-borderless\">\n", $prefix);
-				printf("%s\t\t<tr><th>Model</th><th>Vendor</th></tr>\n", $prefix);
+				printf("%s\t\t<tr><th>Model</th><th>Vendor</th><th>Qty</th></tr>\n", $prefix);
 
-				$gpu_sth = dbQuery("SELECT `vendor_name`, `gpu_model` FROM `minion_gpu`, `gpu`, `vendor` WHERE `server_id` = $id AND `minion_gpu`.`gpu_id` = `gpu`.`gpu_id` AND `gpu`.`vendor_id` = `vendor`.`vendor_id`;");
+				$gpu_sth = dbQuery("SELECT `vendor_name`, `gpu_model`, `gpu_qty` FROM `minion_gpu`, `gpu`, `vendor` WHERE `server_id` = $id AND `minion_gpu`.`gpu_id` = `gpu`.`gpu_id` AND `gpu`.`vendor_id` = `vendor`.`vendor_id`;");
 
 				while ($gpu_row = $gpu_sth->fetch()) {
 					printf("%s\t\t<tr>", $prefix);
 					printf("<td>%s</td>", $gpu_row["gpu_model"]);
 					printf("<td>%s</td>", $gpu_row["vendor_name"]);
+          printf("<td>%s</td>", $gpu_row["gpu_qty"]);
 					printf("</tr>\n");
 				}
 
