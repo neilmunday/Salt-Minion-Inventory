@@ -5,6 +5,7 @@
 * Merged pull request #20 from @dajamu to add improved user interface (issues #13 and #18)
 * Added GPU quantities for issue #17
 * Disable minion info tabs that have no content for issue #19
+* Add server serial number, model and vendor for issue #24
 
 ## Version 1.4 (2019-04-01)
 
