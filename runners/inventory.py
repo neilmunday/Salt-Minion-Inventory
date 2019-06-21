@@ -20,7 +20,13 @@
 #    along with Salt Minion Inventory.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-import ConfigParser
+# try to use the ConfigParser module (Python v2)
+try:
+	import ConfigParser
+except ImportException as e:
+	# try to use the ConfigParser module (Python v3)
+	import configparser
+
 import datetime
 import MySQLdb
 import MySQLdb.cursors
