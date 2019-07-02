@@ -1,5 +1,9 @@
 # Change Log
 
+## Version 1.6 (2019-06-28)
+
+* Updated to work with Python 3 version of SaltStack
+
 ## Version 1.5 (2019-04-24)
 
 * Merged pull request #20 from @dajamu to add improved user interface (issues #13 and #18)

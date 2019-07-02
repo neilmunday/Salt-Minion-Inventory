@@ -20,22 +20,32 @@
 #    along with Salt Minion Inventory.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+import logging
+log = logging.getLogger(__name__)
+
 # try to use the ConfigParser module (Python v2)
 try:
 	import ConfigParser
-except ImportException as e:
+	log.debug("inventory: imported ConfigParser module")
+except ImportError as e:
 	# try to use the ConfigParser module (Python v3)
-	import configparser
+	import configparser as ConfigParser
+	log.debug("inventory: imported configparser module")
 
 import datetime
 import MySQLdb
 import MySQLdb.cursors
-import logging
 import os
 import pytz
 import subprocess
+import sys
 
-log = logging.getLogger(__name__)
+IS_PYTHON_3 = sys.version_info.major == 3
+
+if IS_PYTHON_3:
+	log.debug("inventory: Python 3")
+else:
+	log.debug("inventory: Python 2")
 
 def __connect():
 	"""
@@ -54,12 +64,12 @@ def __connect():
 	log.debug("inventory.__connect: using config file: %s" % CONFIG_FILE)
 	if not os.path.exists(CONFIG_FILE):
 		raise Exception("%s does not exist or is not readable" % CONFIG_FILE)
-	configParser = ConfigParser.ConfigParser()
-	configParser.read(CONFIG_FILE)
-	dbUser = configParser.get("database", "user")
-	dbPassword = configParser.get("database", "password")
-	dbHost = configParser.get("database", "host")
-	dbName = configParser.get("database", "name")
+	conf = ConfigParser.ConfigParser()
+	conf.read(CONFIG_FILE)
+	dbUser = conf.get("database", "user")
+	dbPassword = conf.get("database", "password")
+	dbHost = conf.get("database", "host")
+	dbName = conf.get("database", "name")
 
 	log.debug("inventory.__connect: connection to %s on %s as %s" % (dbName, dbHost, dbUser))
 	try:
@@ -114,6 +124,11 @@ def __getVendorId(db, cursor, vendor):
 	else:
 		vendorId = cursor.fetchone()['vendor_id']
 	return vendorId
+
+def __items(d):
+	if IS_PYTHON_3:
+		return d.items()
+	return d.iteritems()
 
 def audit(ts, properties, propertiesChanged):
 	"""
@@ -335,7 +350,7 @@ def audit(ts, properties, propertiesChanged):
 	db.commit()
 	__doQuery(cursor, "UPDATE `minion_ip4` SET `present` = 0 WHERE `server_id` = %d;" % serverId)
 	db.commit()
-	for interface, addr in properties["hwaddr_interfaces"].iteritems():
+	for interface, addr in __items(properties["hwaddr_interfaces"]):
 		if interface != "lo":
 			interfaceId = __getRecordId(cursor, "interface", "interface_id", "interface_name", interface)
 			if not interfaceId:
@@ -362,7 +377,7 @@ def audit(ts, properties, propertiesChanged):
 	__doQuery(cursor, "UPDATE `minion_package` SET `present` = 0 WHERE `server_id` = %d" % serverId)
 	db.commit()
 	# process install packages
-	for package, versions in properties["pkgs"].iteritems():
+	for package, versions in __items(properties["pkgs"]):
 		pkgId = __getRecordId(cursor, "package", "package_id", "package_name", package)
 		if not pkgId:
 			__doQuery(cursor, "INSERT INTO `package` (`package_name`) VALUES (\"%s\");" % package)
@@ -372,7 +387,7 @@ def audit(ts, properties, propertiesChanged):
 			version = None
 			if isinstance(v, dict) and 'version' in v:
 				version = v['version']
-			elif isinstance(v, basestring):
+			elif (not IS_PYTHON_3 and isinstance(v, basestring)) or (IS_PYTHON_3 and isinstance(v, str)):
 				version = v
 			else:
 				log.error("inventory.audit: could not process %s version %s" % (package, v))

@@ -44,6 +44,8 @@ Minions only report their state, packages etc. if they have changed. Minions wil
 * MySQL-python module
 * pytz python module
 
+Note: if you are using the Python 3 version of SaltStack then you will need to install Python 3 versions of the modules above.
+
 ## Installation
 
 ### MySQL Database
