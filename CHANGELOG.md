@@ -1,5 +1,9 @@
 # Change Log
 
+## Version 1.7 (2019-10-06)
+
+* Updated to work on Windows minions for issue #30
+
 ## Version 1.6 (2019-06-28)
 
 * Updated to work with Python 3 version of SaltStack
