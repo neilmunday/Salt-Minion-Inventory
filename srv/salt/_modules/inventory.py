@@ -24,6 +24,7 @@ import hashlib
 import logging
 import os
 import re
+import tempfile
 
 log = logging.getLogger(__name__)
 
@@ -63,7 +64,10 @@ def audit(force=False):
 
 	properties = {}
 	for p in __AUDIT_GRAINS:
-		properties[p] = grains[p]
+		if p in grains:
+			properties[p] = grains[p]
+		else:
+			properties[p] = 'Unknown'
 
 	properties['disks'] = []
 	properties['users'] = []
@@ -74,26 +78,27 @@ def audit(force=False):
 
 	properties['boot_time'] = __salt__['status.uptime']()['since_t']
 
-	lsblkRe = re.compile('([A-Z]+)="(.*?)"')
-	for line in __salt__['cmd.run']('lsblk -d -o name,serial,vendor,size,type -P -n').split("\n"):
-		matches = lsblkRe.findall(line)
-		if len(matches) > 0:
-			disk = {}
-			for field, value in matches:
-				disk[field.lower()] = value.strip()
-			if len(disk) == 5 and disk['type'] == 'disk': # name, serial, vendor, size, type
-				# convert size to MB
-				units = disk['size'][-1]
-				size = disk['size'][0:-1]
-				if units == 'T':
-					disk['size'] = float(size) * 1048576
-				elif units == 'G':
-					disk['size'] = float(size) * 1024
-				elif units == 'M':
-					disk['size'] = float(size)
-				elif units == 'K':
-					disks['size'] = float(size) / 1024.0
-				properties['disks'].append(disk)
+	if properties['kernel'] == 'Linux':
+		lsblkRe = re.compile('([A-Z]+)="(.*?)"')
+		for line in __salt__['cmd.run']('lsblk -d -o name,serial,vendor,size,type -P -n').split("\n"):
+			matches = lsblkRe.findall(line)
+			if len(matches) > 0:
+				disk = {}
+				for field, value in matches:
+					disk[field.lower()] = value.strip()
+				if len(disk) == 5 and disk['type'] == 'disk': # name, serial, vendor, size, type
+					# convert size to MB
+					units = disk['size'][-1]
+					size = disk['size'][0:-1]
+					if units == 'T':
+						disk['size'] = float(size) * 1048576
+					elif units == 'G':
+						disk['size'] = float(size) * 1024
+					elif units == 'M':
+						disk['size'] = float(size)
+					elif units == 'K':
+						disks['size'] = float(size) / 1024.0
+					properties['disks'].append(disk)
 
 	if 'selinux' in grains and 'enabled' in grains['selinux'] and 'enforced' in grains['selinux']:
 		properties['selinux_enabled'] = grains['selinux']['enabled']
@@ -106,7 +111,7 @@ def audit(force=False):
 
 	checksum = hashlib.md5(str(properties).encode()).hexdigest()
 
-	cacheFile = "/var/tmp/salt_inventory_audit.cache"
+	cacheFile = os.path.join(tempfile.gettempdir(), 'salt_inventory_audit.cache')
 	if not force and os.path.exists(cacheFile):
 			contents = None
 			with open(cacheFile, 'r') as f:
