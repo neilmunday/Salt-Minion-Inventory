@@ -46,7 +46,7 @@ class Database {
 	public function query($qry) {
 		$sth = $this->prepare($qry);
 		$sth->execute();
-		error_log(sprintf("QUERY = %s", $qry));
+		//error_log(sprintf("QUERY = %s", $qry));
 		return $sth;
 	}
 
