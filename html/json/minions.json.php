@@ -29,7 +29,7 @@ $sth  = dbQuery("SELECT `server_id`, `id`, `host`, `fqdn`, `biosversion`, `biosr
 
 $data['data'] = array();
 while($row = $sth->fetch()) {
-        $data['data'][] = $row;
+  $data['data'][] = $row;
 }
 
 // return as JSON
