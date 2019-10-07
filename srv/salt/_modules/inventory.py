@@ -72,12 +72,14 @@ def audit(force=False):
 	properties['disks'] = []
 	properties['users'] = []
 
-	if properties['kernel'] == 'Linux':
+	if properties['kernel'] == 'Windows':
+		properties['boot_time'] = __salt__['status.uptime']()
+	else:
 		for u in __salt__['status.w']():
 			if u['user'] not in properties['users']:
 				properties['users'].append(u['user'])
 
-	properties['boot_time'] = __salt__['status.uptime']()['since_t']
+		properties['boot_time'] = __salt__['status.uptime']()['since_t']
 
 	if properties['kernel'] == 'Linux':
 		lsblkRe = re.compile('([A-Z]+)="(.*?)"')
