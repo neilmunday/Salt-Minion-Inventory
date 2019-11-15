@@ -1,5 +1,9 @@
 # Change Log
 
+## Version 2.0 (in progress)
+
+* Added about page - issue #25
+
 ## Version 1.6 (2019-06-28)
 
 * Updated to work with Python 3 version of SaltStack
