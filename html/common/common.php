@@ -114,12 +114,25 @@ EOT;
 echo <<<EOT
 			</ul>
 		</div>
+    <div class="navbar-collapse collapse w-100 order-3 dual-collapse2">
+        <ul class="navbar-nav ml-auto">
+EOT;
+
+$aboutPath = mkPath('/about.php');
+
+printf("<li class=\"nav-item\%s\"><a class=\"nav-link pull-right\" href=\"%s\">About</a>\n", (getPath() == $aboutPath) ? " active" : "", $aboutPath);
+
+echo <<<EOT
+            </li>
+        </ul>
+    </div>
 	</nav>
 	<!-- End of navbar code -->
 
 	<!-- Start of main body -->
 	<main role="main" class="container-fluid">
 EOT;
+
 }
 
 function printHeadEnd() {
