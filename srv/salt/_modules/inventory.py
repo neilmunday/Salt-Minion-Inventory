@@ -100,7 +100,7 @@ def audit(force=False):
 					elif units == 'M':
 						disk['size'] = float(size)
 					elif units == 'K':
-						disks['size'] = float(size) / 1024.0
+						disk['size'] = float(size) / 1024.0
 					properties['disks'].append(disk)
 
 	if 'selinux' in grains and 'enabled' in grains['selinux'] and 'enforced' in grains['selinux']:
