@@ -1,8 +1,9 @@
 # Change Log
 
-## Version 1.7 (2019-10-06)
+## Version 1.7 (2020-11-03)
 
 * Updated to work on Windows minions for issue #30
+* Merged pull request #34 from @seamus-45 to fix bug in inventory runner audit function for issue #33
 
 ## Version 1.6 (2019-06-28)
 
