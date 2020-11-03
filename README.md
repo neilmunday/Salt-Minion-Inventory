@@ -40,11 +40,14 @@ Minions only report their state, packages etc. if they have changed. Minions wil
 * A MySQL server
 * PHP MySQL support
 * A web browser that supports JS and CSS
-* a SaltStack master and minions
+* a Linux SaltStack master and Linux minions
 * MySQL-python module
 * pytz python module
 
-Note: if you are using the Python 3 version of SaltStack then you will need to install Python 3 versions of the modules above.
+Notes:
+
+* if you are using the Python 3 version of SaltStack then you will need to install Python 3 versions of the modules above.
+* this software has been developed and tested using Linux hosts. Windows minion support is experimental - pull requests welcome!
 
 ## Installation
 
@@ -140,15 +143,17 @@ Run the `inventory.audit` function in debug mode:
 salt -l debug '*' inventory.audit force=True
 ```
 
-## Author
+## Authors
 
 * Neil Munday (@neilmunday)
+* David Murray (@dajamu)
 
 ## Contributors
 
 The following people have contributed code to the project:
 
 * David Murray (@dajamu)
+* @seamus-45
 
 ## Licensing
 
