@@ -144,6 +144,15 @@ def audit(ts, properties, propertiesChanged):
 	db = __connect()
 	cursor = db.cursor()
 
+	# get server id
+	serverId = __getRecordId(cursor, "minion", "server_id", "server_id", properties["server_id"])
+	if not propertiesChanged:
+		# no changes to host, so just update last_audit field
+		log.debug("inventory.audit: no changes needed for %d" % serverId)
+		__doQuery(cursor, "UPDATE `minion` SET `last_audit` = \"%s\" WHERE `server_id` = %d;" % (ts, serverId))
+		db.commit()
+		return True
+
 	# new server vendor?
 	vendorId = __getVendorId(db, cursor, properties["manufacturer"])
 	__doQuery(cursor, "SELECT `server_model_id` FROM `server_model` WHERE `vendor_id` = %d AND `server_model` = \"%s\" LIMIT 0,1;" % (vendorId, properties["productname"]))
@@ -155,15 +164,7 @@ def audit(ts, properties, propertiesChanged):
 	else:
 		modelId = cursor.fetchone()["server_model_id"]
 
-	serverId = __getRecordId(cursor, "minion", "server_id", "server_id", properties["server_id"])
 	if serverId:
-		serverId = int(serverId)
-		if not propertiesChanged:
-			# no changes to host, so just update last_audit field
-			log.debug("inventory.audit: no changes needed for %d" % serverId)
-			__doQuery(cursor, "UPDATE `minion` SET `last_audit` = \"%s\" WHERE `server_id` = %d;" % (ts, serverId))
-			db.commit()
-			return True
 		# update minion info
 		log.debug("inventory.audit: updating host \"%s\"" % properties["host"])
 		query = """
