@@ -1,5 +1,9 @@
 # Change Log
 
+## Version 1.7.1 (2022-04-12)
+
+* Updated moment.js version to 2.29.2 to address CVE-2022-24785
+
 ## Version 1.7 (2020-11-03)
 
 * Updated to work on Windows minions for issue #30
