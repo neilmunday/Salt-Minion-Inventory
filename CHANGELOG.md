@@ -1,5 +1,9 @@
 # Change Log
 
+## Version 1.7.2 (2022-07-13)
+
+* Updated moment.js version to 2.29.4 to address CVE-2022-31129 
+
 ## Version 1.7.1 (2022-04-12)
 
 * Updated moment.js version to 2.29.2 to address CVE-2022-24785
