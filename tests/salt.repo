@@ -1,0 +1,6 @@
+[salt]
+name=SaltStack Release Channel Python 3 for RHEL/Centos $releasever
+baseurl=https://repo.saltstack.com/py3/redhat/8/$basearch/SALT_VERSION
+enabled=1
+gpgcheck=1
+gpgkey=https://repo.saltstack.com/py3/redhat/8/$basearch/SALT_VERSION/SALTSTACK-GPG-KEY.pub

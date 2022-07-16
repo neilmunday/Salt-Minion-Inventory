@@ -1,0 +1,77 @@
+#
+#    This file is part of the Salt Minion Inventory.
+#
+#    Salt Minion Inventory provides a web based interface to your
+#    SaltStack minions to view their state.
+#
+#    Copyright (C) 2019-2022 Neil Munday (neil@mundayweb.com)
+#
+#    Salt Minion Inventory is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    Salt Minion Inventory is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with Salt Minion Inventory.  If not, see <http://www.gnu.org/licenses/>.
+#
+
+FROM rockylinux:8
+
+ARG SALT_VERSION=3004
+
+RUN dnf install -y dnf-plugins-core && \
+    dnf update -y && \
+    dnf install -y epel-release && \
+    dnf config-manager --set-enabled powertools && \
+    dnf install -y \
+        httpd \
+        mariadb-server \
+        php \
+        php-fpm \
+        php-json \
+        php-mbstring \
+        php-mysqlnd \
+        python3-mysql \
+        supervisor \
+        tini && \
+    dnf clean all
+
+RUN /usr/bin/mysql_install_db --user=mysql
+
+# salt install
+COPY --chown=root tests/salt.repo /etc/yum.repos.d/
+
+RUN sed -i "s/SALT_VERSION/$SALT_VERSION/" /etc/yum.repos.d/salt.repo
+
+RUN dnf install -y salt-master && dnf clean all
+
+# configure salt
+RUN sed -i "s|#auto_accept: False|auto_accept: True|g" /etc/salt/master
+COPY tests/salt-master.conf /tmp/
+RUN cat /tmp/salt-master.conf >> /etc/salt/master
+
+# salt minion inventory install
+RUN mkdir -p /var/lib/salt/runners
+COPY --chown=root runners/inventory.py runners/inventory.ini /var/lib/salt/runners/
+COPY --chown=root html/ /var/www/html/
+COPY --chown=root tests/dbcreds.php /var/www/html/common/
+COPY --chown=root srv/ /srv/
+COPY --chown=root tests/audit.sls /srv/salt/
+RUN echo "    - audit" >> /srv/salt/top.sls
+
+# supervisor
+COPY tests/supervisord.conf /etc/
+
+# entry point
+COPY --chown=root tests/entrypoint-master.sh /usr/local/sbin/
+
+# database SQL
+COPY --chown=root tests/database.sql /root/
+
+ENTRYPOINT ["/usr/bin/tini", "--", "/usr/local/sbin/entrypoint-master.sh"]
+CMD ["tail -f /dev/null"]
