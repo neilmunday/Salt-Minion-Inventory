@@ -24,7 +24,7 @@ FROM rockylinux:8
 
 ARG SALT_VERSION=3004
 
-RUN dnf install -y dnf-plugins-core && \
+RUN dnf install -y dnf-plugins-core procps-ng && \
     dnf update -y && \
     dnf install -y epel-release && \
     dnf config-manager --set-enabled powertools
