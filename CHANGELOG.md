@@ -1,5 +1,9 @@
 # Change Log
 
+## Version 1.7.3 (2023-04-04)
+
+* Updated jquery version to 3.6.4 to address CVE-2020-11022
+
 ## Version 1.7.2 (2022-07-13)
 
 * Updated moment.js version to 2.29.4 to address CVE-2022-31129 
