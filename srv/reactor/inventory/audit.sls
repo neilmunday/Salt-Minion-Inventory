@@ -4,7 +4,7 @@
 #    Salt Minion Inventory provides a web based interface to your
 #    SaltStack minions to view their state.
 #
-#    Copyright (C) 2019 Neil Munday (neil@mundayweb.com)
+#    Copyright (C) 2019-2023 Neil Munday (neil@mundayweb.com)
 #
 #    Salt Minion Inventory is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
