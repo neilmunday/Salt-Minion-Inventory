@@ -27,7 +27,8 @@ ARG SALT_VERSION=3005
 RUN dnf install -y dnf-plugins-core procps-ng && \
     dnf update -y && \
     dnf install -y epel-release && \
-    dnf config-manager --set-enabled powertools
+    dnf config-manager --set-enabled powertools && \
+    dnf install -y iproute
 
 # salt install
 COPY --chown=root tests/salt.repo /etc/yum.repos.d/
@@ -36,7 +37,9 @@ RUN sed -i "s/SALT_VERSION/$SALT_VERSION/" /etc/yum.repos.d/salt.repo
 
 RUN dnf install -y salt-minion
 
-RUN echo "startup_states: highstate" >> /etc/salt/minion
+# configure salt
+COPY tests/salt-minion.conf /tmp/
+RUN cat /tmp/salt-minion.conf >> /etc/salt/minion
 
 ENTRYPOINT ["salt-minion", "-l", "debug"]
 CMD ["tail -f /dev/null"]
