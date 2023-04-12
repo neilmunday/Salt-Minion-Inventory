@@ -143,6 +143,10 @@ Run the `inventory.audit` function in debug mode:
 salt -l debug '*' inventory.audit force=True
 ```
 
+## Testing
+
+A Docker compose configuration is provided for testing purposes. See [tests](tests) for further details.
+
 ## Authors
 
 * Neil Munday (@neilmunday)
