@@ -22,7 +22,7 @@
 
 FROM rockylinux:8
 
-ARG SALT_VERSION=3004
+ARG SALT_VERSION=3005
 
 RUN dnf install -y dnf-plugins-core procps-ng && \
     dnf update -y && \
