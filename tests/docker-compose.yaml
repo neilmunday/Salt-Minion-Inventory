@@ -26,10 +26,11 @@ services:
   salt-master:
     build:
       args:
-        SALT_VERSION: 3004
+        SALT_VERSION: 3005
       context: ../
       dockerfile: tests/Dockerfile.master
     container_name: salt
+    hostname: salt
     image: salt-master
     ports:
       - target: 80
@@ -39,7 +40,7 @@ services:
   salt-minion:
     build:
       args:
-        SALT_VERSION: 3004
+        SALT_VERSION: 3005
       context: ../
       dockerfile: tests/Dockerfile.minion
     depends_on:
