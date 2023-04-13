@@ -37,12 +37,12 @@ services:
         published: 8080
         protocol: tcp
         mode: host
-  salt-minion:
+  salt-el8-minion:
     build:
       args:
         SALT_VERSION: 3005
       context: ../
-      dockerfile: tests/Dockerfile.minion
+      dockerfile: tests/Dockerfile.el8.minion
     depends_on:
       - salt-master
-    image: salt-minion
+    image: salt-el8-minion

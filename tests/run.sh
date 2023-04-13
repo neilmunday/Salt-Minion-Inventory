@@ -59,10 +59,10 @@ cd $DIR/..
 # build salt-master
 docker build -t salt-master:latest -t salt-master:$SALT_VER --build-arg SALT_VERSION=${SALT_VER} -f tests/Dockerfile.master .
 # build salt-minion
-docker build -t salt-minion:latest -t salt-minion:$SALT_VER --build-arg SALT_VERSION=${SALT_VER} -f tests/Dockerfile.minion .
+docker build -t salt-minion-el8:latest -t salt-minion-el8:$SALT_VER --build-arg SALT_VERSION=${SALT_VER} -f tests/Dockerfile.el8.minion .
 # run containers
 if [ -z $MINIONS ]; then
   docker compose -f tests/docker-compose.yaml up
 else
-  docker compose -f tests/docker-compose.yaml up --scale salt-minion=$MINIONS
+  docker compose -f tests/docker-compose.yaml up --scale salt-minion-el8=$MINIONS
 fi
