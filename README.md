@@ -51,6 +51,23 @@ Notes:
 
 ## Installation
 
+### SaltStack Onedir
+
+If you have installed [SaltStack's Onedir](https://docs.saltproject.io/en/latest/topics/packaging/index.html) installation option, you will need to perform the following steps:
+
+1. Install your operating system's MySQL/MariaDB development libraries, e.g.
+
+```bash
+sudo dnf install mariadb-devel
+```
+
+2. Install the required Python modules:
+
+```bash
+sudo salt-pip install configparser
+sudo salt-pip install mysqlclient
+```
+
 ### MySQL Database
 
 Create a database, e.g. `salt_minion` to store the minion information like so:
