@@ -53,7 +53,7 @@ Notes:
 
 ### SaltStack Onedir
 
-If you have installed [SaltStack's Onedir](https://docs.saltproject.io/en/latest/topics/packaging/index.html) installation option, you will need to perform the following steps:
+If you have are using [SaltStack's Onedir](https://docs.saltproject.io/en/latest/topics/packaging/index.html) installation option, you will need to perform the following steps:
 
 1. Install your operating system's MySQL/MariaDB development libraries, e.g.
 
