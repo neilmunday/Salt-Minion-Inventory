@@ -165,7 +165,7 @@ function printHeadStart($title = "Unknown") {
     printf("    <link href=\"%s\" rel=\"stylesheet\">\n\n", mkpath("/static/css/bootstrap.min.css"));
 
     printf("    <!-- JQuery stuff -->\n");
-    printf("    <script src=\"%s\"></script>\n\n", mkpath("/static/js/jquery-3.3.1.min.js"));
+    printf("    <script src=\"%s\"></script>\n\n", mkpath("/static/js/jquery-3.6.4.min.js"));
 
     printf("    <!-- Moment code -->\n");
     printf("    <script src=\"%s\"></script>\n\n", mkpath("/static/js/moment.min.js"));
