@@ -109,7 +109,7 @@ def __getTimeStamp(tsStr):
 	into a Unix timestamp.
 	Credit: David Murray @dajamu
 	"""
-	return int(pytz.timezone("UTC").localize(datetime.datetime.strptime(tsStr, "%Y-%m-%dT%H:%M:%S.%f")).strftime("%s"))
+	return int(pytz.timezone("UTC").localize(datetime.datetime.strptime(tsStr, "%Y-%m-%dT%H:%M:%S.%f")).timestamp())
 
 def __getVendorId(db, cursor, vendor):
 	"""
