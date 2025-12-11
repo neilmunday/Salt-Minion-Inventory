@@ -20,28 +20,27 @@
 #    along with Salt Minion Inventory.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+import datetime
 import logging
+import os
+import subprocess
+import sys
+import MySQLdb
+import MySQLdb.cursors
+import pytz
 
 log = logging.getLogger(__name__)
 
 # try to use the ConfigParser module (Python v2)
 try:
     import ConfigParser
-
     log.debug("inventory: imported ConfigParser module")
-except ImportError as e:
+except ImportError:
     # try to use the ConfigParser module (Python v3)
     import configparser as ConfigParser
 
     log.debug("inventory: imported configparser module")
 
-import datetime
-import MySQLdb
-import MySQLdb.cursors
-import os
-import pytz
-import subprocess
-import sys
 
 IS_PYTHON_3 = sys.version_info.major == 3
 
