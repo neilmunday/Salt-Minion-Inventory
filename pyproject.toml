@@ -1,0 +1,13 @@
+[tool.black]
+line-length = 120
+preview-string-processing = true
+
+[tool.pylint.messages_control]
+max-line-length = 120
+
+[tool.coverage.run]
+relative_files = true
+
+[tool.mypy]
+files = ["src", "tests/unit"]
+strict_optional = false
