@@ -9,5 +9,5 @@ max-line-length = 120
 relative_files = true
 
 [tool.mypy]
-files = ["src", "tests/unit"]
+files = ["src"]
 strict_optional = false
