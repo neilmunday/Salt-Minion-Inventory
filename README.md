@@ -166,6 +166,12 @@ To test which minions have been detected by presence events:
 salt-run manage.present
 ```
 
+## Last Seen vs. Last Audit
+
+The *Last Seen* value for a minion is the date/time that a minion was connected to the Salt Master. This is achieved by using Salt Stack's [presence events](https://docs.saltproject.io/en/latest/topics/event/master_events.html#presence-events) feature.
+
+In comparison the *Last Audit* value for a minion is the date/time that a minion was last audited by the Salt Minion Inventory. When a **new** (previously uknown) minion is detected during a presence event a one-off audit will be triggered to add it to the Salt Minion Inventory's database. The frequency of audits is controlled by the `/srv/pillar/inventory.sls` and is set to six hours by default.
+
 ## Testing
 
 A Docker compose configuration is provided for testing purposes. See [tests](tests) for further details.
